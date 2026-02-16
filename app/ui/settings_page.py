@@ -1,0 +1,212 @@
+"""Settings page - ASR and TTS configuration."""
+
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QLabel, QHBoxLayout, QFileDialog,
+)
+from PyQt5.QtCore import Qt
+
+from qfluentwidgets import (
+    ScrollArea, ExpandLayout, SettingCardGroup, ComboBoxSettingCard,
+    SwitchSettingCard, FluentIcon, PushSettingCard, HeaderCardWidget,
+    LineEdit, ComboBox, PushButton, SpinBox, DoubleSpinBox, SwitchButton,
+    BodyLabel, CardWidget, StrongBodyLabel,
+)
+
+from app.config import AppConfig
+from app.common.audio_devices import get_input_devices, get_output_devices
+
+
+class SettingsPage(ScrollArea):
+    def __init__(self, config: AppConfig, parent=None):
+        super().__init__(parent)
+        self.config = config
+        self.setObjectName("settingsPage")
+
+        self.scroll_widget = QWidget()
+        self.expand_layout = ExpandLayout(self.scroll_widget)
+
+        self._init_asr_group()
+        self._init_tts_group()
+
+        self.expand_layout.setSpacing(20)
+        self.expand_layout.setContentsMargins(36, 20, 36, 20)
+
+        self.setWidget(self.scroll_widget)
+        self.setWidgetResizable(True)
+        self.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+        self.scroll_widget.setStyleSheet("background: transparent;")
+
+    def _init_asr_group(self):
+        self.asr_group = SettingCardGroup("语音识别 (ASR)", self.scroll_widget)
+
+        # ASR enable switch
+        self.asr_card = _SettingCard("语音识别开关", "开启后可通过麦克风识别语音并自动转文字", self.asr_group)
+        self.asr_enabled_switch = SwitchButton()
+        self.asr_enabled_switch.setChecked(self.config.asr.enabled)
+        self.asr_enabled_switch.checkedChanged.connect(self._on_asr_enabled_changed)
+        self.asr_card.add_widget(self.asr_enabled_switch)
+        self.asr_group.addSettingCard(self.asr_card)
+
+        # Microphone selection
+        self.mic_card = _SettingCard("麦克风", "选择用于语音识别的输入设备", self.asr_group)
+        self.mic_combo = ComboBox()
+        self.mic_combo.setMinimumWidth(260)
+        self._refresh_input_devices()
+        self.mic_combo.currentTextChanged.connect(self._on_mic_changed)
+        self.mic_card.add_widget(self.mic_combo)
+        self.asr_group.addSettingCard(self.mic_card)
+
+        # Voice mode
+        self.voice_mode_card = _SettingCard("语音模式", "push_to_talk=按住说话, toggle=切换, open_mic=持续开启", self.asr_group)
+        self.voice_mode_combo = ComboBox()
+        self.voice_mode_combo.addItems(["push_to_talk", "toggle", "open_mic"])
+        self.voice_mode_combo.setCurrentText(self.config.asr.voice_mode)
+        self.voice_mode_combo.currentTextChanged.connect(self._on_voice_mode_changed)
+        self.voice_mode_card.add_widget(self.voice_mode_combo)
+        self.asr_group.addSettingCard(self.voice_mode_card)
+
+        # Hotkey
+        self.hotkey_card = _SettingCard("热键", "语音识别触发按键", self.asr_group)
+        self.hotkey_edit = LineEdit()
+        self.hotkey_edit.setMinimumWidth(160)
+        self.hotkey_edit.setText(self.config.asr.hotkey)
+        self.hotkey_edit.textChanged.connect(self._on_hotkey_changed)
+        self.hotkey_card.add_widget(self.hotkey_edit)
+        self.asr_group.addSettingCard(self.hotkey_card)
+
+        # Language
+        self.lang_card = _SettingCard("识别语言", "语音识别模型语言", self.asr_group)
+        self.lang_combo = ComboBox()
+        self.lang_combo.addItems(["zh", "en", "ja", "ko", "auto"])
+        self.lang_combo.setCurrentText(self.config.asr.language)
+        self.lang_combo.currentTextChanged.connect(self._on_lang_changed)
+        self.lang_card.add_widget(self.lang_combo)
+        self.asr_group.addSettingCard(self.lang_card)
+
+        self.expand_layout.addWidget(self.asr_group)
+
+    def _init_tts_group(self):
+        self.tts_group = SettingCardGroup("语音合成 (TTS)", self.scroll_widget)
+
+        # API URL
+        self.api_card = _SettingCard("API 地址", "GPT-SoVITS API 服务地址", self.tts_group)
+        self.api_url_edit = LineEdit()
+        self.api_url_edit.setMinimumWidth(260)
+        self.api_url_edit.setText(self.config.tts.api_url)
+        self.api_url_edit.textChanged.connect(lambda t: setattr(self.config.tts, "api_url", t))
+        self.api_card.add_widget(self.api_url_edit)
+        self.tts_group.addSettingCard(self.api_card)
+
+        # Reference audio
+        self.ref_card = _SettingCard("参考音频", "TTS 参考音频文件路径", self.tts_group)
+        self.ref_path_edit = LineEdit()
+        self.ref_path_edit.setMinimumWidth(200)
+        self.ref_path_edit.setText(self.config.tts.ref_audio_path)
+        self.ref_path_edit.textChanged.connect(lambda t: setattr(self.config.tts, "ref_audio_path", t))
+        self.ref_browse_btn = PushButton("浏览")
+        self.ref_browse_btn.clicked.connect(self._browse_ref_audio)
+        self.ref_card.add_widget(self.ref_path_edit)
+        self.ref_card.add_widget(self.ref_browse_btn)
+        self.tts_group.addSettingCard(self.ref_card)
+
+        # Speaker device (physical speaker for self-monitoring)
+        self.speaker_card = _SettingCard("物理扬声器", "用于自己监听合成语音的输出设备", self.tts_group)
+        self.speaker_combo = ComboBox()
+        self.speaker_combo.setMinimumWidth(260)
+        self._refresh_speaker_devices()
+        self.speaker_combo.currentTextChanged.connect(
+            lambda t: setattr(self.config.tts, "speaker_device_name", t)
+        )
+        self.speaker_card.add_widget(self.speaker_combo)
+        self.tts_group.addSettingCard(self.speaker_card)
+
+        # Virtual cable device (for VRChat)
+        self.virtual_card = _SettingCard("虚拟声卡", "用于VRChat游戏内播放的虚拟声卡设备 (如 CABLE Input)", self.tts_group)
+        self.virtual_combo = ComboBox()
+        self.virtual_combo.setMinimumWidth(260)
+        self._refresh_virtual_devices()
+        self.virtual_combo.currentTextChanged.connect(
+            lambda t: setattr(self.config.tts, "virtual_device_name", t)
+        )
+        self.virtual_card.add_widget(self.virtual_combo)
+        self.tts_group.addSettingCard(self.virtual_card)
+
+        self.expand_layout.addWidget(self.tts_group)
+
+    # --- Refresh helpers ---
+
+    def _refresh_input_devices(self):
+        self.mic_combo.clear()
+        devices = get_input_devices()
+        for idx, name in devices:
+            self.mic_combo.addItem(name)
+        if self.config.asr.microphone_name:
+            self.mic_combo.setCurrentText(self.config.asr.microphone_name)
+
+    def _refresh_speaker_devices(self):
+        self.speaker_combo.clear()
+        devices = get_output_devices()
+        for idx, name in devices:
+            self.speaker_combo.addItem(name)
+        if self.config.tts.speaker_device_name:
+            self.speaker_combo.setCurrentText(self.config.tts.speaker_device_name)
+
+    def _refresh_virtual_devices(self):
+        self.virtual_combo.clear()
+        devices = get_output_devices()
+        for idx, name in devices:
+            self.virtual_combo.addItem(name)
+        if self.config.tts.virtual_device_name:
+            self.virtual_combo.setCurrentText(self.config.tts.virtual_device_name)
+
+    # --- Event handlers ---
+
+    def _on_asr_enabled_changed(self, checked):
+        self.config.asr.enabled = checked
+
+    def _on_mic_changed(self, text):
+        self.config.asr.microphone_name = text
+
+    def _on_voice_mode_changed(self, text):
+        self.config.asr.voice_mode = text
+
+    def _on_hotkey_changed(self, text):
+        self.config.asr.hotkey = text
+
+    def _on_lang_changed(self, text):
+        self.config.asr.language = text
+
+    def _browse_ref_audio(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "选择参考音频", "", "Audio Files (*.wav *.mp3 *.flac);;All Files (*)"
+        )
+        if path:
+            self.ref_path_edit.setText(path)
+
+    def save_config(self):
+        self.config.save()
+
+
+class _SettingCard(CardWidget):
+    """A simple setting card with a label, description, and right-side widgets."""
+
+    def __init__(self, title: str, description: str, parent=None):
+        super().__init__(parent)
+        self.setFixedHeight(70)
+
+        self.h_layout = QHBoxLayout(self)
+        self.h_layout.setContentsMargins(20, 0, 20, 0)
+
+        left = QVBoxLayout()
+        left.setSpacing(2)
+        self.title_label = StrongBodyLabel(title)
+        self.desc_label = BodyLabel(description)
+        self.desc_label.setStyleSheet("color: gray; font-size: 12px;")
+        left.addWidget(self.title_label)
+        left.addWidget(self.desc_label)
+
+        self.h_layout.addLayout(left)
+        self.h_layout.addStretch()
+
+    def add_widget(self, widget):
+        self.h_layout.addWidget(widget)
