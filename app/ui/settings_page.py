@@ -134,8 +134,9 @@ class SettingsPage(ScrollArea):
 
         # Speaker device (physical speaker for self-monitoring, with refresh)
         self.speaker_device_card = AudioDeviceCard(
-            "物理扬声器", "用于自己监听合成语音的输出设备",
+            "物理扬声器", "用于自己监听合成语音的输出设备，选择"无"则不监听",
             is_input=False,
+            allow_none=True,
             current_device=self.config.tts.speaker_device_name,
             parent=self.tts_group,
         )
@@ -193,7 +194,7 @@ class SettingsPage(ScrollArea):
         signal_bus.config_changed.emit()
 
     def _on_speaker_changed(self, text):
-        self.config.tts.speaker_device_name = text
+        self.config.tts.speaker_device_name = "" if text == "无" else text
         signal_bus.config_changed.emit()
 
     def _on_virtual_changed(self, text):

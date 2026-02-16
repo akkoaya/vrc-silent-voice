@@ -17,11 +17,13 @@ class AudioDeviceCard(CardWidget):
         title: str,
         description: str,
         is_input: bool = False,
+        allow_none: bool = False,
         current_device: str = "",
         parent=None,
     ):
         super().__init__(parent)
         self.is_input = is_input
+        self.allow_none = allow_none
         self.setFixedHeight(70)
 
         h_layout = QHBoxLayout(self)
@@ -45,6 +47,8 @@ class AudioDeviceCard(CardWidget):
 
     def refresh_devices(self):
         self.combo.clear()
+        if self.allow_none:
+            self.combo.addItem("无")
         devices = get_input_devices() if self.is_input else get_output_devices()
         for idx, name in devices:
             self.combo.addItem(name)
