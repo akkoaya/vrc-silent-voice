@@ -1,16 +1,16 @@
 """Audio device selector card widget."""
 
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
+from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from qfluentwidgets import (
-    CardWidget, ComboBox, PushButton, StrongBodyLabel, BodyLabel, FluentIcon,
+    CardWidget, ComboBox, StrongBodyLabel, BodyLabel,
 )
 
 from app.common.audio_devices import get_input_devices, get_output_devices
 
 
 class AudioDeviceCard(CardWidget):
-    """Card with device ComboBox and refresh button."""
+    """Card with device ComboBox."""
 
     def __init__(
         self,
@@ -39,11 +39,6 @@ class AudioDeviceCard(CardWidget):
         self.combo = ComboBox()
         self.combo.setMinimumWidth(260)
         h_layout.addWidget(self.combo)
-
-        self.refresh_btn = PushButton(FluentIcon.SYNC, "")
-        self.refresh_btn.setFixedSize(36, 36)
-        self.refresh_btn.clicked.connect(self.refresh_devices)
-        h_layout.addWidget(self.refresh_btn)
 
         self._current_device = current_device
         self.refresh_devices()
