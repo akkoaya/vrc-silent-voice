@@ -13,6 +13,22 @@ import soundfile as sf
 from app.common.audio_devices import find_device_by_name
 
 
+def _resample(data: np.ndarray, src_rate: int, dst_rate: int) -> np.ndarray:
+    """Resample audio data via linear interpolation. Supports mono and stereo."""
+    if src_rate == dst_rate:
+        return data
+    ratio = dst_rate / src_rate
+    src_len = data.shape[0]
+    dst_len = int(src_len * ratio)
+    indices = np.arange(dst_len) / ratio
+    idx_floor = np.floor(indices).astype(int)
+    idx_ceil = np.minimum(idx_floor + 1, src_len - 1)
+    frac = indices - idx_floor
+    if data.ndim == 2:
+        frac = frac[:, np.newaxis]
+    return data[idx_floor] * (1 - frac) + data[idx_ceil] * frac
+
+
 class AudioPlayer:
     """Plays WAV audio simultaneously on two output devices."""
 
@@ -93,7 +109,18 @@ class AudioPlayer:
     @staticmethod
     def _play_on_device(data: np.ndarray, samplerate: int, device_idx: Optional[int]):
         try:
-            sd.play(data, samplerate=samplerate, device=device_idx, blocking=True)
+            # Query device's default sample rate
+            try:
+                info = sd.query_devices(device_idx, kind="output")
+                device_rate = int(info["default_samplerate"])
+            except Exception:
+                device_rate = samplerate
+
+            play_data = data
+            if device_rate != samplerate:
+                play_data = _resample(data, samplerate, device_rate)
+
+            sd.play(play_data, samplerate=device_rate, device=device_idx, blocking=True)
         except Exception as e:
             print(f"Audio playback error on device {device_idx}: {e}")
 

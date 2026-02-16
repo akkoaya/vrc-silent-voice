@@ -5,13 +5,17 @@ from unittest.mock import patch, MagicMock
 
 from app.core.audio_player import AudioPlayer
 
+_DEVICE_INFO = {"default_samplerate": 48000}
+
 
 def test_play_array_default_device():
     """When no device names set, should play on default device."""
     player = AudioPlayer()
     data = np.zeros((4800,), dtype="float32")  # 0.1s of silence at 48kHz
 
-    with patch("app.core.audio_player.sd.play") as mock_play:
+    with patch("app.core.audio_player.find_device_by_name", return_value=-1), \
+         patch("app.core.audio_player.sd.play") as mock_play, \
+         patch("app.core.audio_player.sd.query_devices", return_value=_DEVICE_INFO):
         import threading
         done = threading.Event()
 
@@ -34,7 +38,8 @@ def test_play_with_named_devices():
     data = np.zeros((4800,), dtype="float32")
 
     with patch("app.core.audio_player.find_device_by_name") as mock_find, \
-         patch("app.core.audio_player.sd.play") as mock_play:
+         patch("app.core.audio_player.sd.play") as mock_play, \
+         patch("app.core.audio_player.sd.query_devices", return_value=_DEVICE_INFO):
 
         mock_find.side_effect = lambda name, is_input: {"Speakers": 3, "CABLE": 5}.get(name, -1)
 
@@ -75,7 +80,9 @@ def test_play_wav_bytes():
     sf.write(buf, data, 48000, format="WAV")
     wav_bytes = buf.getvalue()
 
-    with patch("app.core.audio_player.sd.play") as mock_play:
+    with patch("app.core.audio_player.find_device_by_name", return_value=-1), \
+         patch("app.core.audio_player.sd.play") as mock_play, \
+         patch("app.core.audio_player.sd.query_devices", return_value=_DEVICE_INFO):
         import threading
         done = threading.Event()
         player.play_wav_bytes(wav_bytes, lambda: done.set())

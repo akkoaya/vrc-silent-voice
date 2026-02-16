@@ -12,6 +12,19 @@ from app.common.audio_devices import find_device_by_name
 from app.core.asr_engine import ASREngine
 
 
+def _resample(data: np.ndarray, src_rate: int, dst_rate: int) -> np.ndarray:
+    """Simple linear-interpolation resample from src_rate to dst_rate."""
+    if src_rate == dst_rate:
+        return data
+    ratio = dst_rate / src_rate
+    n_samples = int(len(data) * ratio)
+    indices = np.arange(n_samples) / ratio
+    indices_floor = np.floor(indices).astype(int)
+    indices_ceil = np.minimum(indices_floor + 1, len(data) - 1)
+    frac = indices - indices_floor
+    return data[indices_floor] * (1 - frac) + data[indices_ceil] * frac
+
+
 class ASRWorker(QThread):
     """Captures audio from microphone and feeds it to ASR engine in real-time."""
 
@@ -64,12 +77,20 @@ class ASRWorker(QThread):
         if device_idx < 0:
             device_idx = None  # use default
 
+        # Query device's default sample rate
+        target_rate = self.engine.sample_rate
+        try:
+            info = sd.query_devices(device_idx, kind="input")
+            device_rate = int(info["default_samplerate"])
+        except Exception:
+            device_rate = target_rate
+
         try:
             with sd.InputStream(
-                samplerate=self.engine.sample_rate,
+                samplerate=device_rate,
                 channels=1,
                 dtype="float32",
-                blocksize=int(self.engine.sample_rate * 0.1),  # 100ms chunks
+                blocksize=int(device_rate * 0.1),  # 100ms chunks
                 device=device_idx,
             ) as stream:
                 self._stream = stream
@@ -78,11 +99,15 @@ class ASRWorker(QThread):
                         self.msleep(50)
                         continue
 
-                    data, overflowed = stream.read(int(self.engine.sample_rate * 0.1))
+                    data, overflowed = stream.read(int(device_rate * 0.1))
                     if data.size == 0:
                         continue
 
                     samples = data.flatten()
+                    # Resample to engine's expected rate if needed
+                    if device_rate != target_rate:
+                        samples = _resample(samples, device_rate, target_rate)
+
                     self.engine.accept_waveform(samples)
 
                     text = self.engine.get_partial_result()
