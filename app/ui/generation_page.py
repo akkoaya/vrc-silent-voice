@@ -11,12 +11,14 @@ from qfluentwidgets import (
     SwitchButton, ExpandLayout, SettingCardGroup,
 )
 
+from app.config import AppConfig
 from app.ui.components.asr_control_card import ASRControlCard
 
 
 class GenerationPage(ScrollArea):
-    def __init__(self, parent=None):
+    def __init__(self, config: AppConfig, parent=None):
         super().__init__(parent)
+        self.config = config
         self.setObjectName("generationPage")
 
         self.scroll_widget = QWidget()
@@ -67,14 +69,14 @@ class GenerationPage(ScrollArea):
         grid.addWidget(BodyLabel("文本语言"), row, 0)
         self.text_lang_combo = ComboBox()
         self.text_lang_combo.addItems(["zh", "en", "ja", "ko", "yue", "auto"])
-        self.text_lang_combo.setCurrentText("zh")
+        self.text_lang_combo.setCurrentText(self.config.tts.text_lang)
         self.text_lang_combo.setMinimumWidth(120)
         grid.addWidget(self.text_lang_combo, row, 1)
 
         grid.addWidget(BodyLabel("文本切分方式"), row, 2)
         self.split_combo = ComboBox()
         self.split_combo.addItems(["cut0", "cut1", "cut2", "cut3", "cut4", "cut5"])
-        self.split_combo.setCurrentText("cut5")
+        self.split_combo.setCurrentText(self.config.tts.text_split_method)
         self.split_combo.setMinimumWidth(120)
         grid.addWidget(self.split_combo, row, 3)
         row += 1
@@ -83,14 +85,14 @@ class GenerationPage(ScrollArea):
         grid.addWidget(BodyLabel("Top K"), row, 0)
         self.top_k_spin = SpinBox()
         self.top_k_spin.setRange(1, 100)
-        self.top_k_spin.setValue(5)
+        self.top_k_spin.setValue(self.config.tts.top_k)
         grid.addWidget(self.top_k_spin, row, 1)
 
         grid.addWidget(BodyLabel("Top P"), row, 2)
         self.top_p_spin = DoubleSpinBox()
         self.top_p_spin.setRange(0.0, 1.0)
         self.top_p_spin.setSingleStep(0.05)
-        self.top_p_spin.setValue(1.0)
+        self.top_p_spin.setValue(self.config.tts.top_p)
         grid.addWidget(self.top_p_spin, row, 3)
         row += 1
 
@@ -99,14 +101,14 @@ class GenerationPage(ScrollArea):
         self.temp_spin = DoubleSpinBox()
         self.temp_spin.setRange(0.01, 2.0)
         self.temp_spin.setSingleStep(0.05)
-        self.temp_spin.setValue(1.0)
+        self.temp_spin.setValue(self.config.tts.temperature)
         grid.addWidget(self.temp_spin, row, 1)
 
         grid.addWidget(BodyLabel("语速"), row, 2)
         self.speed_spin = DoubleSpinBox()
         self.speed_spin.setRange(0.25, 4.0)
         self.speed_spin.setSingleStep(0.1)
-        self.speed_spin.setValue(1.0)
+        self.speed_spin.setValue(self.config.tts.speed_factor)
         grid.addWidget(self.speed_spin, row, 3)
         row += 1
 
@@ -114,13 +116,13 @@ class GenerationPage(ScrollArea):
         grid.addWidget(BodyLabel("Batch Size"), row, 0)
         self.batch_spin = SpinBox()
         self.batch_spin.setRange(1, 64)
-        self.batch_spin.setValue(1)
+        self.batch_spin.setValue(self.config.tts.batch_size)
         grid.addWidget(self.batch_spin, row, 1)
 
         grid.addWidget(BodyLabel("Seed"), row, 2)
         self.seed_spin = SpinBox()
         self.seed_spin.setRange(-1, 999999)
-        self.seed_spin.setValue(-1)
+        self.seed_spin.setValue(self.config.tts.seed)
         grid.addWidget(self.seed_spin, row, 3)
         row += 1
 
@@ -129,20 +131,20 @@ class GenerationPage(ScrollArea):
         self.rep_penalty_spin = DoubleSpinBox()
         self.rep_penalty_spin.setRange(0.5, 3.0)
         self.rep_penalty_spin.setSingleStep(0.05)
-        self.rep_penalty_spin.setValue(1.35)
+        self.rep_penalty_spin.setValue(self.config.tts.repetition_penalty)
         grid.addWidget(self.rep_penalty_spin, row, 1)
 
         grid.addWidget(BodyLabel("采样步数"), row, 2)
         self.sample_steps_spin = SpinBox()
         self.sample_steps_spin.setRange(1, 128)
-        self.sample_steps_spin.setValue(32)
+        self.sample_steps_spin.setValue(self.config.tts.sample_steps)
         grid.addWidget(self.sample_steps_spin, row, 3)
         row += 1
 
         # Super sampling switch
         grid.addWidget(BodyLabel("超采样"), row, 0)
         self.super_sampling_switch = SwitchButton()
-        self.super_sampling_switch.setChecked(False)
+        self.super_sampling_switch.setChecked(self.config.tts.super_sampling)
         grid.addWidget(self.super_sampling_switch, row, 1)
 
         self.v_layout.addWidget(params_card)
@@ -190,6 +192,21 @@ class GenerationPage(ScrollArea):
             "sample_steps": self.sample_steps_spin.value(),
             "super_sampling": self.super_sampling_switch.isChecked(),
         }
+
+    def save_config(self):
+        """Write current UI parameter values back to config object."""
+        tts = self.config.tts
+        tts.text_lang = self.text_lang_combo.currentText()
+        tts.text_split_method = self.split_combo.currentText()
+        tts.top_k = self.top_k_spin.value()
+        tts.top_p = self.top_p_spin.value()
+        tts.temperature = self.temp_spin.value()
+        tts.speed_factor = self.speed_spin.value()
+        tts.batch_size = self.batch_spin.value()
+        tts.seed = self.seed_spin.value()
+        tts.repetition_penalty = self.rep_penalty_spin.value()
+        tts.sample_steps = self.sample_steps_spin.value()
+        tts.super_sampling = self.super_sampling_switch.isChecked()
 
     def set_busy(self, busy: bool):
         """Toggle busy state UI."""
