@@ -1,0 +1,9 @@
+PyQt6>=6.6.0
+PyQt-Fluent-Widgets[full]>=1.7.5
+sounddevice>=0.5.1
+soundfile>=0.12.1
+numpy>=1.26.0
+httpx>=0.27.0
+pynput>=1.7.7
+sherpa-onnx>=1.10.0
+pytest>=8.0.0
