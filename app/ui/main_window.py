@@ -12,6 +12,7 @@ from app.core.pipeline import Pipeline
 from app.signals import signal_bus
 from app.ui.generation_page import GenerationPage
 from app.ui.settings_page import SettingsPage
+from app.ui.about_page import AboutPage
 
 
 class MainWindow(FluentWindow):
@@ -23,8 +24,9 @@ class MainWindow(FluentWindow):
         self.pipeline = Pipeline(self.config, parent=self)
 
         # Create pages
-        self.generation_page = GenerationPage(self)
+        self.generation_page = GenerationPage(self.config, self)
         self.settings_page = SettingsPage(self.config, self)
+        self.about_page = AboutPage(self)
 
         self._init_navigation()
         self._init_window()
@@ -36,13 +38,18 @@ class MainWindow(FluentWindow):
     def _init_navigation(self):
         self.addSubInterface(
             self.generation_page,
-            FluentIcon.MICROPHONE,
-            "生成",
+            FluentIcon.HOME,
+            "主页",
         )
         self.addSubInterface(
             self.settings_page,
             FluentIcon.SETTING,
             "设置",
+        )
+        self.addSubInterface(
+            self.about_page,
+            FluentIcon.INFO,
+            "关于",
             position=NavigationItemPosition.BOTTOM,
         )
 
@@ -166,6 +173,7 @@ class MainWindow(FluentWindow):
         )
 
     def closeEvent(self, event):
+        self.generation_page.save_config()
         self.settings_page.save_config()
         self.pipeline.shutdown()
         super().closeEvent(event)
