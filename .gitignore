@@ -10,9 +10,7 @@ build/
 venv/
 env/
 config.json
-models/*.onnx
-models/*.bin
-models/*.fst
+models/*/
 .claude/
 *.wav
 *.mp3
