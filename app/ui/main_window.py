@@ -4,8 +4,8 @@ from qfluentwidgets import (
     FluentWindow, FluentIcon, NavigationItemPosition,
     InfoBar, InfoBarPosition,
 )
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QSize, QTimer
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QSize, QTimer
 
 from app.config import AppConfig
 from app.core.pipeline import Pipeline

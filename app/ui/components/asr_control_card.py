@@ -1,7 +1,7 @@
 """ASR status and control card widget."""
 
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
+from PyQt6.QtCore import Qt
 
 from qfluentwidgets import (
     CardWidget, StrongBodyLabel, BodyLabel, PushButton,

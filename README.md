@@ -90,7 +90,7 @@ python -m pytest tests/ -v
 
 ## 技术栈
 
-- **UI**: PyQt5 + PyQt-Fluent-Widgets
+- **UI**: PyQt6 + PyQt6-Fluent-Widgets
 - **ASR**: Sherpa-ONNX (离线流式识别)
 - **TTS**: GPT-SoVITS V2 API
 - **音频**: sounddevice + soundfile

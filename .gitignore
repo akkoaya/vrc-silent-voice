@@ -16,3 +16,4 @@ models/*.fst
 .claude/
 *.wav
 *.mp3
+CLAUDE.md

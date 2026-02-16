@@ -1,7 +1,7 @@
 """Custom hotkey capture input widget."""
 
-from PyQt5.QtWidgets import QWidget, QHBoxLayout
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QWidget, QHBoxLayout
+from PyQt6.QtCore import Qt, pyqtSignal, QMetaObject, Q_ARG, pyqtSlot
 
 from qfluentwidgets import LineEdit, PushButton
 
@@ -59,11 +59,9 @@ class HotkeyEdit(QWidget):
 
     def _on_key_press(self, key):
         key_str = self._key_to_string(key)
-        # Use invokeMethod to safely update UI from listener thread
-        from PyQt5.QtCore import QMetaObject, Q_ARG
         QMetaObject.invokeMethod(
             self, "_set_hotkey",
-            Qt.QueuedConnection,
+            Qt.ConnectionType.QueuedConnection,
             Q_ARG(str, key_str),
         )
         return False  # Stop listener after one key
@@ -79,14 +77,11 @@ class HotkeyEdit(QWidget):
                 return str(key.vk)
         return str(key)
 
+    @pyqtSlot(str)
     def _set_hotkey(self, key_str: str):
         self.display.setText(key_str)
         self._stop_capture()
         self.hotkey_changed.emit(key_str)
-
-    # Expose slot for QMetaObject.invokeMethod
-    from PyQt5.QtCore import pyqtSlot
-    _set_hotkey = pyqtSlot(str)(_set_hotkey)
 
     def value(self) -> str:
         return self.display.text()

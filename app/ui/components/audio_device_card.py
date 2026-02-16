@@ -1,6 +1,6 @@
 """Audio device selector card widget."""
 
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 
 from qfluentwidgets import (
     CardWidget, ComboBox, PushButton, StrongBodyLabel, BodyLabel, FluentIcon,

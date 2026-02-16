@@ -1,9 +1,9 @@
 """Settings page - ASR and TTS configuration."""
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QHBoxLayout, QFileDialog,
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 from qfluentwidgets import (
     ScrollArea, ExpandLayout, SettingCardGroup,

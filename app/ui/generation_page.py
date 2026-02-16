@@ -1,9 +1,9 @@
 """Generation page - text input, ASR control, TTS parameters, and generation."""
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout, QSizePolicy,
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 from qfluentwidgets import (
     ScrollArea, TextEdit, PushButton, ComboBox, SpinBox, DoubleSpinBox,

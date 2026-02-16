@@ -6,7 +6,7 @@ from typing import Optional
 
 import numpy as np
 import sounddevice as sd
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal
 
 from app.common.audio_devices import find_device_by_name
 from app.core.asr_engine import ASREngine

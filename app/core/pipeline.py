@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, QMetaObject, Qt, Q_ARG
+from PyQt6.QtCore import QObject, QThread, pyqtSignal, QMetaObject, Qt, Q_ARG
 
 from app.config import AppConfig
 from app.core.asr_engine import ASREngine
