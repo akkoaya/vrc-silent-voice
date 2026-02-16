@@ -6,14 +6,15 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 
 from qfluentwidgets import (
-    ScrollArea, ExpandLayout, SettingCardGroup, ComboBoxSettingCard,
-    SwitchSettingCard, FluentIcon, PushSettingCard, HeaderCardWidget,
-    LineEdit, ComboBox, PushButton, SpinBox, DoubleSpinBox, SwitchButton,
+    ScrollArea, ExpandLayout, SettingCardGroup,
+    FluentIcon, LineEdit, ComboBox, PushButton, SwitchButton,
     BodyLabel, CardWidget, StrongBodyLabel,
 )
 
 from app.config import AppConfig
 from app.common.audio_devices import get_input_devices, get_output_devices
+from app.ui.components.hotkey_edit import HotkeyEdit
+from app.ui.components.audio_device_card import AudioDeviceCard
 
 
 class SettingsPage(ScrollArea):
@@ -47,17 +48,22 @@ class SettingsPage(ScrollArea):
         self.asr_card.add_widget(self.asr_enabled_switch)
         self.asr_group.addSettingCard(self.asr_card)
 
-        # Microphone selection
-        self.mic_card = _SettingCard("麦克风", "选择用于语音识别的输入设备", self.asr_group)
-        self.mic_combo = ComboBox()
-        self.mic_combo.setMinimumWidth(260)
-        self._refresh_input_devices()
-        self.mic_combo.currentTextChanged.connect(self._on_mic_changed)
-        self.mic_card.add_widget(self.mic_combo)
-        self.asr_group.addSettingCard(self.mic_card)
+        # Microphone selection (with refresh button)
+        self.mic_device_card = AudioDeviceCard(
+            "麦克风", "选择用于语音识别的输入设备",
+            is_input=True,
+            current_device=self.config.asr.microphone_name,
+            parent=self.asr_group,
+        )
+        self.mic_device_card.combo.currentTextChanged.connect(self._on_mic_changed)
+        self.asr_group.addSettingCard(self.mic_device_card)
 
         # Voice mode
-        self.voice_mode_card = _SettingCard("语音模式", "push_to_talk=按住说话, toggle=切换, open_mic=持续开启", self.asr_group)
+        self.voice_mode_card = _SettingCard(
+            "语音模式",
+            "push_to_talk=按住说话, toggle=按键切换, open_mic=持续开启",
+            self.asr_group,
+        )
         self.voice_mode_combo = ComboBox()
         self.voice_mode_combo.addItems(["push_to_talk", "toggle", "open_mic"])
         self.voice_mode_combo.setCurrentText(self.config.asr.voice_mode)
@@ -65,12 +71,10 @@ class SettingsPage(ScrollArea):
         self.voice_mode_card.add_widget(self.voice_mode_combo)
         self.asr_group.addSettingCard(self.voice_mode_card)
 
-        # Hotkey
-        self.hotkey_card = _SettingCard("热键", "语音识别触发按键", self.asr_group)
-        self.hotkey_edit = LineEdit()
-        self.hotkey_edit.setMinimumWidth(160)
-        self.hotkey_edit.setText(self.config.asr.hotkey)
-        self.hotkey_edit.textChanged.connect(self._on_hotkey_changed)
+        # Hotkey (with capture button)
+        self.hotkey_card = _SettingCard("热键", "语音识别触发按键（点击捕获按键后按下想要的按键）", self.asr_group)
+        self.hotkey_edit = HotkeyEdit(current_hotkey=self.config.asr.hotkey)
+        self.hotkey_edit.hotkey_changed.connect(self._on_hotkey_changed)
         self.hotkey_card.add_widget(self.hotkey_edit)
         self.asr_group.addSettingCard(self.hotkey_card)
 
@@ -109,55 +113,51 @@ class SettingsPage(ScrollArea):
         self.ref_card.add_widget(self.ref_browse_btn)
         self.tts_group.addSettingCard(self.ref_card)
 
-        # Speaker device (physical speaker for self-monitoring)
-        self.speaker_card = _SettingCard("物理扬声器", "用于自己监听合成语音的输出设备", self.tts_group)
-        self.speaker_combo = ComboBox()
-        self.speaker_combo.setMinimumWidth(260)
-        self._refresh_speaker_devices()
-        self.speaker_combo.currentTextChanged.connect(
+        # Prompt text
+        self.prompt_card = _SettingCard("提示文本", "参考音频对应的文本内容", self.tts_group)
+        self.prompt_text_edit = LineEdit()
+        self.prompt_text_edit.setMinimumWidth(260)
+        self.prompt_text_edit.setText(self.config.tts.prompt_text)
+        self.prompt_text_edit.textChanged.connect(lambda t: setattr(self.config.tts, "prompt_text", t))
+        self.prompt_card.add_widget(self.prompt_text_edit)
+        self.tts_group.addSettingCard(self.prompt_card)
+
+        # Prompt language
+        self.prompt_lang_card = _SettingCard("提示语言", "参考音频的语言", self.tts_group)
+        self.prompt_lang_combo = ComboBox()
+        self.prompt_lang_combo.addItems(["zh", "en", "ja", "ko", "yue", "auto"])
+        self.prompt_lang_combo.setCurrentText(self.config.tts.prompt_lang)
+        self.prompt_lang_combo.currentTextChanged.connect(
+            lambda t: setattr(self.config.tts, "prompt_lang", t)
+        )
+        self.prompt_lang_card.add_widget(self.prompt_lang_combo)
+        self.tts_group.addSettingCard(self.prompt_lang_card)
+
+        # Speaker device (physical speaker for self-monitoring, with refresh)
+        self.speaker_device_card = AudioDeviceCard(
+            "物理扬声器", "用于自己监听合成语音的输出设备",
+            is_input=False,
+            current_device=self.config.tts.speaker_device_name,
+            parent=self.tts_group,
+        )
+        self.speaker_device_card.combo.currentTextChanged.connect(
             lambda t: setattr(self.config.tts, "speaker_device_name", t)
         )
-        self.speaker_card.add_widget(self.speaker_combo)
-        self.tts_group.addSettingCard(self.speaker_card)
+        self.tts_group.addSettingCard(self.speaker_device_card)
 
-        # Virtual cable device (for VRChat)
-        self.virtual_card = _SettingCard("虚拟声卡", "用于VRChat游戏内播放的虚拟声卡设备 (如 CABLE Input)", self.tts_group)
-        self.virtual_combo = ComboBox()
-        self.virtual_combo.setMinimumWidth(260)
-        self._refresh_virtual_devices()
-        self.virtual_combo.currentTextChanged.connect(
+        # Virtual cable device (for VRChat, with refresh)
+        self.virtual_device_card = AudioDeviceCard(
+            "虚拟声卡", "用于VRChat游戏内播放的虚拟声卡设备 (如 CABLE Input)",
+            is_input=False,
+            current_device=self.config.tts.virtual_device_name,
+            parent=self.tts_group,
+        )
+        self.virtual_device_card.combo.currentTextChanged.connect(
             lambda t: setattr(self.config.tts, "virtual_device_name", t)
         )
-        self.virtual_card.add_widget(self.virtual_combo)
-        self.tts_group.addSettingCard(self.virtual_card)
+        self.tts_group.addSettingCard(self.virtual_device_card)
 
         self.expand_layout.addWidget(self.tts_group)
-
-    # --- Refresh helpers ---
-
-    def _refresh_input_devices(self):
-        self.mic_combo.clear()
-        devices = get_input_devices()
-        for idx, name in devices:
-            self.mic_combo.addItem(name)
-        if self.config.asr.microphone_name:
-            self.mic_combo.setCurrentText(self.config.asr.microphone_name)
-
-    def _refresh_speaker_devices(self):
-        self.speaker_combo.clear()
-        devices = get_output_devices()
-        for idx, name in devices:
-            self.speaker_combo.addItem(name)
-        if self.config.tts.speaker_device_name:
-            self.speaker_combo.setCurrentText(self.config.tts.speaker_device_name)
-
-    def _refresh_virtual_devices(self):
-        self.virtual_combo.clear()
-        devices = get_output_devices()
-        for idx, name in devices:
-            self.virtual_combo.addItem(name)
-        if self.config.tts.virtual_device_name:
-            self.virtual_combo.setCurrentText(self.config.tts.virtual_device_name)
 
     # --- Event handlers ---
 
@@ -170,8 +170,8 @@ class SettingsPage(ScrollArea):
     def _on_voice_mode_changed(self, text):
         self.config.asr.voice_mode = text
 
-    def _on_hotkey_changed(self, text):
-        self.config.asr.hotkey = text
+    def _on_hotkey_changed(self, key_str):
+        self.config.asr.hotkey = key_str
 
     def _on_lang_changed(self, text):
         self.config.asr.language = text
