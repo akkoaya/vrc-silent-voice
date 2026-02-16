@@ -1,4 +1,4 @@
-PyQt6>=6.6.0
+PyQt5>=5.15.0
 PyQt-Fluent-Widgets[full]>=1.7.5
 sounddevice>=0.5.1
 soundfile>=0.12.1

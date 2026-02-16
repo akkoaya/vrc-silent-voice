@@ -1,19 +1,17 @@
 import sys
 
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
 
 from app.ui.main_window import MainWindow
 
 
 def main():
     app = QApplication(sys.argv)
-    app.setAttribute(Qt.ApplicationAttribute.AA_DontCreateNativeWidgetSiblings)
 
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
