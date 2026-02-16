@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, QMetaObject, Qt, Q_ARG
 
 from app.config import AppConfig
 from app.core.asr_engine import ASREngine
@@ -38,6 +38,9 @@ class TTSWorker(QThread):
 class Pipeline(QObject):
     """Orchestrates ASR → TTS → AudioPlayer flow."""
 
+    # Internal signal for thread-safe playback completion
+    _playback_done_signal = pyqtSignal()
+
     def __init__(self, config: AppConfig, parent=None):
         super().__init__(parent)
         self.config = config
@@ -57,6 +60,9 @@ class Pipeline(QObject):
         self.hotkey_manager: Optional[HotkeyManager] = None
         self._tts_worker: Optional[TTSWorker] = None
         self._busy = False
+
+        # Connect internal signal for thread-safe completion callback
+        self._playback_done_signal.connect(self._handle_playback_done)
 
     def initialize_asr(self) -> bool:
         """Initialize ASR engine and start worker thread."""
@@ -137,6 +143,10 @@ class Pipeline(QObject):
         signal_bus.tts_error.emit(error)
 
     def _on_playback_done(self):
+        # Called from background thread — emit signal for thread-safe handling
+        self._playback_done_signal.emit()
+
+    def _handle_playback_done(self):
         self._busy = False
         signal_bus.pipeline_busy.emit(False)
         signal_bus.playback_finished.emit()
