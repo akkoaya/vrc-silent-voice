@@ -23,7 +23,7 @@ class TTSClient:
 
     def check_connection(self) -> bool:
         try:
-            r = self._client.get(self.base_url + "/")
+            r = self._client.get(self.base_url + "/docs")
             return r.status_code == 200
         except httpx.HTTPError:
             return False
