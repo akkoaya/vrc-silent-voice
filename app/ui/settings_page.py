@@ -13,6 +13,7 @@ from qfluentwidgets import (
 
 from app.config import AppConfig
 from app.common.audio_devices import get_input_devices, get_output_devices
+from app.signals import signal_bus
 from app.ui.components.hotkey_edit import HotkeyEdit
 from app.ui.components.audio_device_card import AudioDeviceCard
 
@@ -97,7 +98,7 @@ class SettingsPage(ScrollArea):
         self.api_url_edit = LineEdit()
         self.api_url_edit.setMinimumWidth(260)
         self.api_url_edit.setText(self.config.tts.api_url)
-        self.api_url_edit.textChanged.connect(lambda t: setattr(self.config.tts, "api_url", t))
+        self.api_url_edit.textChanged.connect(self._on_api_url_changed)
         self.api_card.add_widget(self.api_url_edit)
         self.tts_group.addSettingCard(self.api_card)
 
@@ -106,7 +107,7 @@ class SettingsPage(ScrollArea):
         self.ref_path_edit = LineEdit()
         self.ref_path_edit.setMinimumWidth(200)
         self.ref_path_edit.setText(self.config.tts.ref_audio_path)
-        self.ref_path_edit.textChanged.connect(lambda t: setattr(self.config.tts, "ref_audio_path", t))
+        self.ref_path_edit.textChanged.connect(self._on_ref_path_changed)
         self.ref_browse_btn = PushButton("浏览")
         self.ref_browse_btn.clicked.connect(self._browse_ref_audio)
         self.ref_card.add_widget(self.ref_path_edit)
@@ -118,7 +119,7 @@ class SettingsPage(ScrollArea):
         self.prompt_text_edit = LineEdit()
         self.prompt_text_edit.setMinimumWidth(260)
         self.prompt_text_edit.setText(self.config.tts.prompt_text)
-        self.prompt_text_edit.textChanged.connect(lambda t: setattr(self.config.tts, "prompt_text", t))
+        self.prompt_text_edit.textChanged.connect(self._on_prompt_text_changed)
         self.prompt_card.add_widget(self.prompt_text_edit)
         self.tts_group.addSettingCard(self.prompt_card)
 
@@ -127,9 +128,7 @@ class SettingsPage(ScrollArea):
         self.prompt_lang_combo = ComboBox()
         self.prompt_lang_combo.addItems(["zh", "en", "ja", "ko", "yue", "auto"])
         self.prompt_lang_combo.setCurrentText(self.config.tts.prompt_lang)
-        self.prompt_lang_combo.currentTextChanged.connect(
-            lambda t: setattr(self.config.tts, "prompt_lang", t)
-        )
+        self.prompt_lang_combo.currentTextChanged.connect(self._on_prompt_lang_changed)
         self.prompt_lang_card.add_widget(self.prompt_lang_combo)
         self.tts_group.addSettingCard(self.prompt_lang_card)
 
@@ -140,9 +139,7 @@ class SettingsPage(ScrollArea):
             current_device=self.config.tts.speaker_device_name,
             parent=self.tts_group,
         )
-        self.speaker_device_card.combo.currentTextChanged.connect(
-            lambda t: setattr(self.config.tts, "speaker_device_name", t)
-        )
+        self.speaker_device_card.combo.currentTextChanged.connect(self._on_speaker_changed)
         self.tts_group.addSettingCard(self.speaker_device_card)
 
         # Virtual cable device (for VRChat, with refresh)
@@ -152,9 +149,7 @@ class SettingsPage(ScrollArea):
             current_device=self.config.tts.virtual_device_name,
             parent=self.tts_group,
         )
-        self.virtual_device_card.combo.currentTextChanged.connect(
-            lambda t: setattr(self.config.tts, "virtual_device_name", t)
-        )
+        self.virtual_device_card.combo.currentTextChanged.connect(self._on_virtual_changed)
         self.tts_group.addSettingCard(self.virtual_device_card)
 
         self.expand_layout.addWidget(self.tts_group)
@@ -163,18 +158,47 @@ class SettingsPage(ScrollArea):
 
     def _on_asr_enabled_changed(self, checked):
         self.config.asr.enabled = checked
+        signal_bus.config_changed.emit()
 
     def _on_mic_changed(self, text):
         self.config.asr.microphone_name = text
+        signal_bus.config_changed.emit()
 
     def _on_voice_mode_changed(self, text):
         self.config.asr.voice_mode = text
+        signal_bus.config_changed.emit()
 
     def _on_hotkey_changed(self, key_str):
         self.config.asr.hotkey = key_str
+        signal_bus.config_changed.emit()
 
     def _on_lang_changed(self, text):
         self.config.asr.language = text
+        signal_bus.config_changed.emit()
+
+    def _on_api_url_changed(self, text):
+        self.config.tts.api_url = text
+        signal_bus.config_changed.emit()
+
+    def _on_ref_path_changed(self, text):
+        self.config.tts.ref_audio_path = text
+        signal_bus.config_changed.emit()
+
+    def _on_prompt_text_changed(self, text):
+        self.config.tts.prompt_text = text
+        signal_bus.config_changed.emit()
+
+    def _on_prompt_lang_changed(self, text):
+        self.config.tts.prompt_lang = text
+        signal_bus.config_changed.emit()
+
+    def _on_speaker_changed(self, text):
+        self.config.tts.speaker_device_name = text
+        signal_bus.config_changed.emit()
+
+    def _on_virtual_changed(self, text):
+        self.config.tts.virtual_device_name = text
+        signal_bus.config_changed.emit()
 
     def _browse_ref_audio(self):
         path, _ = QFileDialog.getOpenFileName(
