@@ -10,7 +10,7 @@ from qfluentwidgets import (
 from app.i18n import t
 
 
-VERSION = "0.9.0"
+VERSION = "1.0.0"
 
 
 class AboutPage(ScrollArea):
