@@ -1,5 +1,6 @@
 import sys
 
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QApplication
 
 from app.config import AppConfig
@@ -9,6 +10,7 @@ from app.ui.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
+    app.setFont(QFont("Microsoft YaHei UI", 9))
 
     config = AppConfig.load()
     set_language(config.language)
