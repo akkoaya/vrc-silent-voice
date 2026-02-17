@@ -1,12 +1,19 @@
 """Audio device enumeration utilities."""
 
+import platform
 from typing import List, Tuple
 
 import sounddevice as sd
 
 
-def _get_wasapi_device_indices() -> set:
-    """Return device indices belonging to the WASAPI host API."""
+def _get_preferred_host_api_devices() -> set:
+    """Return device indices for the preferred host API on this platform.
+
+    Windows: WASAPI (lowest latency, best compatibility)
+    Linux/macOS: return empty set (accept all devices)
+    """
+    if platform.system() != "Windows":
+        return set()
     hostapis = sd.query_hostapis()
     for api in hostapis:
         if "WASAPI" in api["name"]:
@@ -28,11 +35,11 @@ def _deduplicate(devices: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
 def get_input_devices() -> List[Tuple[int, str]]:
     """Return list of (device_index, device_name) for input devices."""
     devices = sd.query_devices()
-    wasapi = _get_wasapi_device_indices()
+    preferred = _get_preferred_host_api_devices()
     result = []
     for i, dev in enumerate(devices):
         if dev["max_input_channels"] > 0:
-            if not wasapi or i in wasapi:
+            if not preferred or i in preferred:
                 result.append((i, dev["name"]))
     return _deduplicate(result)
 
@@ -40,11 +47,11 @@ def get_input_devices() -> List[Tuple[int, str]]:
 def get_output_devices() -> List[Tuple[int, str]]:
     """Return list of (device_index, device_name) for output devices."""
     devices = sd.query_devices()
-    wasapi = _get_wasapi_device_indices()
+    preferred = _get_preferred_host_api_devices()
     result = []
     for i, dev in enumerate(devices):
         if dev["max_output_channels"] > 0:
-            if not wasapi or i in wasapi:
+            if not preferred or i in preferred:
                 result.append((i, dev["name"]))
     return _deduplicate(result)
 

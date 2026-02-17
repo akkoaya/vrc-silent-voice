@@ -99,9 +99,9 @@ _translations: dict[str, dict[str, str]] = {
     },
     "settings.virtual_device": {"en": "Virtual Audio Cable", "ja": "仮想オーディオケーブル", "zh": "虚拟声卡"},
     "settings.virtual_desc": {
-        "en": "Virtual audio cable device for VRChat playback (e.g. CABLE Input)",
-        "ja": "VRChatで再生する仮想オーディオケーブル（例: CABLE Input）",
-        "zh": "用于VRChat游戏内播放的虚拟声卡设备 (如 CABLE Input)",
+        "en": "Virtual audio device for VRChat playback (Windows: CABLE Input, Linux: PulseAudio/PipeWire virtual sink)",
+        "ja": "VRChatで再生する仮想オーディオデバイス（Windows: CABLE Input、Linux: PulseAudio/PipeWire仮想シンク）",
+        "zh": "用于VRChat游戏内播放的虚拟音频设备 (Windows: CABLE Input, Linux: PulseAudio/PipeWire 虚拟设备)",
     },
     "settings.select_ref_audio": {
         "en": "Select Reference Audio",

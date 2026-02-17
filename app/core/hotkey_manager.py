@@ -124,12 +124,17 @@ class HotkeyManager:
             if self.on_start:
                 self.on_start()
 
-        self._listener = keyboard.Listener(
-            on_press=self._on_press,
-            on_release=self._on_release,
-        )
-        self._listener.daemon = True
-        self._listener.start()
+        try:
+            self._listener = keyboard.Listener(
+                on_press=self._on_press,
+                on_release=self._on_release,
+            )
+            self._listener.daemon = True
+            self._listener.start()
+        except Exception as e:
+            # pynput may fail on Linux Wayland without X11
+            print(f"Hotkey listener failed to start: {e}")
+            self._listener = None
 
     def stop(self):
         """Stop listening and clean up."""

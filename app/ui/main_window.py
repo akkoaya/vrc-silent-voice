@@ -150,15 +150,17 @@ class MainWindow(MSFluentWindow):
             else:
                 self.pipeline.initialize_asr()
 
-        # Check virtual audio cable
+        # Check virtual audio cable (Windows: VB-CABLE, Linux: PulseAudio/PipeWire virtual sink)
+        import platform
         from app.common.audio_devices import get_output_devices
         devices = get_output_devices()
-        has_cable = any("CABLE" in name.upper() or "VIRTUAL" in name.upper() for _, name in devices)
-        if not has_cable:
-            self._show_warning(
-                t("msg.no_virtual_cable"),
-                t("msg.no_virtual_cable_desc"),
-            )
+        if platform.system() == "Windows":
+            has_cable = any("CABLE" in name.upper() or "VIRTUAL" in name.upper() for _, name in devices)
+            if not has_cable:
+                self._show_warning(
+                    t("msg.no_virtual_cable"),
+                    t("msg.no_virtual_cable_desc"),
+                )
 
     def _on_generate(self):
         text = self.generation_page.text_edit.toPlainText().strip()
