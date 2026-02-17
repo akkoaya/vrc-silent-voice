@@ -2,12 +2,32 @@
 
 from __future__ import annotations
 
+import sys
 import json
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.json"
+
+def _get_base_dir() -> Path:
+    """Return the base directory for bundled data (models, icons, etc.)."""
+    if getattr(sys, "frozen", False):
+        # PyInstaller onedir: data files are in sys._MEIPASS
+        return Path(sys._MEIPASS)
+    return Path(__file__).resolve().parent.parent
+
+
+def _get_app_dir() -> Path:
+    """Return the directory for user-writable files (config.json, etc.)."""
+    if getattr(sys, "frozen", False):
+        # Next to the executable so users can find/edit it
+        return Path(sys.executable).parent
+    return Path(__file__).resolve().parent.parent
+
+
+BASE_DIR = _get_base_dir()
+APP_DIR = _get_app_dir()
+CONFIG_PATH = APP_DIR / "config.json"
 
 
 @dataclass

@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QSize, QTimer
 from PyQt6.QtGui import QIcon
 
-from app.config import AppConfig
+from app.config import AppConfig, BASE_DIR
 from app.core.pipeline import Pipeline
 from app.i18n import t, set_language, get_language, LANGUAGES
 from app.signals import signal_bus
@@ -91,7 +91,7 @@ class MainWindow(MSFluentWindow):
         self.resize(960, 700)
         self.setMinimumSize(QSize(760, 500))
         self.setWindowTitle("VRCSilentVoice")
-        self.setWindowIcon(QIcon("VRCSV.ico"))
+        self.setWindowIcon(QIcon(str(BASE_DIR / "VRCSV.ico")))
 
         self.titleBar.titleLabel.setStyleSheet("font-size: 16px")
 

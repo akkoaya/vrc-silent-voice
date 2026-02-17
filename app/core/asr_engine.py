@@ -8,6 +8,8 @@ from typing import Optional
 
 import sherpa_onnx
 
+from app.config import BASE_DIR
+
 
 class ASREngine:
     """Wraps sherpa-onnx OnlineRecognizer for streaming ASR."""
@@ -18,7 +20,11 @@ class ASREngine:
         language: str = "zh",
         sample_rate: int = 16000,
     ):
-        self.model_dir = Path(model_dir)
+        path = Path(model_dir)
+        # Resolve relative paths against the application base directory
+        if not path.is_absolute():
+            path = BASE_DIR / path
+        self.model_dir = path
         self.language = language
         self.sample_rate = sample_rate
         self._recognizer: Optional[sherpa_onnx.OnlineRecognizer] = None
