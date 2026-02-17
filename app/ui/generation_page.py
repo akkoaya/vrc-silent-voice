@@ -12,6 +12,7 @@ from qfluentwidgets import (
 )
 
 from app.config import AppConfig
+from app.i18n import t
 from app.ui.components.asr_control_card import ASRControlCard
 
 
@@ -45,18 +46,18 @@ class GenerationPage(ScrollArea):
 
     def _init_text_section(self):
         """Text input area."""
-        label = StrongBodyLabel("输入文本")
+        label = StrongBodyLabel(t("gen.input_text"))
         self.v_layout.addWidget(label)
 
         self.text_edit = TextEdit()
-        self.text_edit.setPlaceholderText("输入要合成的文本，或通过语音识别自动填入...")
+        self.text_edit.setPlaceholderText(t("gen.placeholder"))
         self.text_edit.setMinimumHeight(100)
         self.text_edit.setMaximumHeight(200)
         self.v_layout.addWidget(self.text_edit)
 
     def _init_params_section(self):
         """TTS parameter controls."""
-        label = StrongBodyLabel("合成参数")
+        label = StrongBodyLabel(t("gen.params"))
         self.v_layout.addWidget(label)
 
         params_card = CardWidget()
@@ -66,14 +67,14 @@ class GenerationPage(ScrollArea):
         row = 0
 
         # Text language
-        grid.addWidget(BodyLabel("文本语言"), row, 0)
+        grid.addWidget(BodyLabel(t("gen.text_lang")), row, 0)
         self.text_lang_combo = ComboBox()
         self.text_lang_combo.addItems(["zh", "en", "ja", "ko", "yue", "auto"])
         self.text_lang_combo.setCurrentText(self.config.tts.text_lang)
         self.text_lang_combo.setMinimumWidth(120)
         grid.addWidget(self.text_lang_combo, row, 1)
 
-        grid.addWidget(BodyLabel("文本切分方式"), row, 2)
+        grid.addWidget(BodyLabel(t("gen.split_method")), row, 2)
         self.split_combo = ComboBox()
         self.split_combo.addItems(["cut0", "cut1", "cut2", "cut3", "cut4", "cut5"])
         self.split_combo.setCurrentText(self.config.tts.text_split_method)
@@ -104,7 +105,7 @@ class GenerationPage(ScrollArea):
         self.temp_spin.setValue(self.config.tts.temperature)
         grid.addWidget(self.temp_spin, row, 1)
 
-        grid.addWidget(BodyLabel("语速"), row, 2)
+        grid.addWidget(BodyLabel(t("gen.speed")), row, 2)
         self.speed_spin = DoubleSpinBox()
         self.speed_spin.setRange(0.25, 4.0)
         self.speed_spin.setSingleStep(0.1)
@@ -127,14 +128,14 @@ class GenerationPage(ScrollArea):
         row += 1
 
         # Repetition penalty / Sample steps
-        grid.addWidget(BodyLabel("重复惩罚"), row, 0)
+        grid.addWidget(BodyLabel(t("gen.rep_penalty")), row, 0)
         self.rep_penalty_spin = DoubleSpinBox()
         self.rep_penalty_spin.setRange(0.5, 3.0)
         self.rep_penalty_spin.setSingleStep(0.05)
         self.rep_penalty_spin.setValue(self.config.tts.repetition_penalty)
         grid.addWidget(self.rep_penalty_spin, row, 1)
 
-        grid.addWidget(BodyLabel("采样步数"), row, 2)
+        grid.addWidget(BodyLabel(t("gen.sample_steps")), row, 2)
         self.sample_steps_spin = SpinBox()
         self.sample_steps_spin.setRange(1, 128)
         self.sample_steps_spin.setValue(self.config.tts.sample_steps)
@@ -142,7 +143,7 @@ class GenerationPage(ScrollArea):
         row += 1
 
         # Super sampling switch
-        grid.addWidget(BodyLabel("超采样"), row, 0)
+        grid.addWidget(BodyLabel(t("gen.super_sampling")), row, 0)
         self.super_sampling_switch = SwitchButton()
         self.super_sampling_switch.setChecked(self.config.tts.super_sampling)
         grid.addWidget(self.super_sampling_switch, row, 1)
@@ -154,12 +155,12 @@ class GenerationPage(ScrollArea):
         action_row = QHBoxLayout()
         action_row.setSpacing(12)
 
-        self.generate_btn = PushButton(FluentIcon.SEND, "生成语音")
+        self.generate_btn = PushButton(FluentIcon.SEND, t("gen.generate"))
         self.generate_btn.setFixedHeight(40)
         self.generate_btn.setMinimumWidth(160)
         action_row.addWidget(self.generate_btn)
 
-        self.stop_btn = PushButton(FluentIcon.CLOSE, "停止")
+        self.stop_btn = PushButton(FluentIcon.CLOSE, t("gen.stop"))
         self.stop_btn.setFixedHeight(40)
         self.stop_btn.setEnabled(False)
         action_row.addWidget(self.stop_btn)
@@ -214,7 +215,7 @@ class GenerationPage(ScrollArea):
         self.stop_btn.setEnabled(busy)
         if busy:
             self.status_ring.show()
-            self.status_label.setText("正在合成...")
+            self.status_label.setText(t("gen.synthesizing"))
         else:
             self.status_ring.hide()
             self.status_label.setText("")

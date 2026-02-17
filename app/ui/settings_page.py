@@ -13,6 +13,7 @@ from qfluentwidgets import (
 
 from app.config import AppConfig
 from app.common.audio_devices import get_input_devices, get_output_devices
+from app.i18n import t
 from app.signals import signal_bus
 from app.ui.components.hotkey_edit import HotkeyEdit
 from app.ui.components.audio_device_card import AudioDeviceCard
@@ -39,10 +40,10 @@ class SettingsPage(ScrollArea):
         self.scroll_widget.setStyleSheet("background: transparent;")
 
     def _init_asr_group(self):
-        self.asr_group = SettingCardGroup("语音识别 (ASR)", self.scroll_widget)
+        self.asr_group = SettingCardGroup(t("settings.asr_group"), self.scroll_widget)
 
         # ASR enable switch
-        self.asr_card = _SettingCard("语音识别开关", "开启后可通过麦克风识别语音并自动转文字", self.asr_group)
+        self.asr_card = _SettingCard(t("settings.asr_switch"), t("settings.asr_switch_desc"), self.asr_group)
         self.asr_enabled_switch = SwitchButton()
         self.asr_enabled_switch.setChecked(self.config.asr.enabled)
         self.asr_enabled_switch.checkedChanged.connect(self._on_asr_enabled_changed)
@@ -51,7 +52,7 @@ class SettingsPage(ScrollArea):
 
         # Microphone selection (with refresh button)
         self.mic_device_card = AudioDeviceCard(
-            "麦克风", "选择用于语音识别的输入设备",
+            t("settings.microphone"), t("settings.mic_desc"),
             is_input=True,
             current_device=self.config.asr.microphone_name,
             parent=self.asr_group,
@@ -61,8 +62,8 @@ class SettingsPage(ScrollArea):
 
         # Voice mode
         self.voice_mode_card = _SettingCard(
-            "语音模式",
-            "push_to_talk=按住说话, toggle=按键切换, open_mic=持续开启",
+            t("settings.voice_mode"),
+            t("settings.voice_mode_desc"),
             self.asr_group,
         )
         self.voice_mode_combo = ComboBox()
@@ -73,14 +74,14 @@ class SettingsPage(ScrollArea):
         self.asr_group.addSettingCard(self.voice_mode_card)
 
         # Hotkey (with capture button)
-        self.hotkey_card = _SettingCard("热键", "语音识别触发按键（点击捕获按键后按下想要的按键）", self.asr_group)
+        self.hotkey_card = _SettingCard(t("settings.hotkey"), t("settings.hotkey_desc"), self.asr_group)
         self.hotkey_edit = HotkeyEdit(current_hotkey=self.config.asr.hotkey)
         self.hotkey_edit.hotkey_changed.connect(self._on_hotkey_changed)
         self.hotkey_card.add_widget(self.hotkey_edit)
         self.asr_group.addSettingCard(self.hotkey_card)
 
         # Language
-        self.lang_card = _SettingCard("识别语言", "语音识别模型语言", self.asr_group)
+        self.lang_card = _SettingCard(t("settings.asr_lang"), t("settings.asr_lang_desc"), self.asr_group)
         self.lang_combo = ComboBox()
         self.lang_combo.addItems(["zh", "en", "ja", "ko", "auto"])
         self.lang_combo.setCurrentText(self.config.asr.language)
@@ -91,10 +92,10 @@ class SettingsPage(ScrollArea):
         self.expand_layout.addWidget(self.asr_group)
 
     def _init_tts_group(self):
-        self.tts_group = SettingCardGroup("语音合成 (TTS)", self.scroll_widget)
+        self.tts_group = SettingCardGroup(t("settings.tts_group"), self.scroll_widget)
 
         # API URL
-        self.api_card = _SettingCard("API 地址", "GPT-SoVITS API 服务地址", self.tts_group)
+        self.api_card = _SettingCard(t("settings.api_url"), t("settings.api_url_desc"), self.tts_group)
         self.api_url_edit = LineEdit()
         self.api_url_edit.setMinimumWidth(260)
         self.api_url_edit.setText(self.config.tts.api_url)
@@ -103,19 +104,19 @@ class SettingsPage(ScrollArea):
         self.tts_group.addSettingCard(self.api_card)
 
         # Reference audio
-        self.ref_card = _SettingCard("参考音频", "TTS 参考音频文件路径", self.tts_group)
+        self.ref_card = _SettingCard(t("settings.ref_audio"), t("settings.ref_audio_desc"), self.tts_group)
         self.ref_path_edit = LineEdit()
         self.ref_path_edit.setMinimumWidth(200)
         self.ref_path_edit.setText(self.config.tts.ref_audio_path)
         self.ref_path_edit.textChanged.connect(self._on_ref_path_changed)
-        self.ref_browse_btn = PushButton("浏览")
+        self.ref_browse_btn = PushButton(t("settings.browse"))
         self.ref_browse_btn.clicked.connect(self._browse_ref_audio)
         self.ref_card.add_widget(self.ref_path_edit)
         self.ref_card.add_widget(self.ref_browse_btn)
         self.tts_group.addSettingCard(self.ref_card)
 
         # Prompt text
-        self.prompt_card = _SettingCard("提示文本", "参考音频对应的文本内容", self.tts_group)
+        self.prompt_card = _SettingCard(t("settings.prompt_text"), t("settings.prompt_text_desc"), self.tts_group)
         self.prompt_text_edit = LineEdit()
         self.prompt_text_edit.setMinimumWidth(260)
         self.prompt_text_edit.setText(self.config.tts.prompt_text)
@@ -124,7 +125,7 @@ class SettingsPage(ScrollArea):
         self.tts_group.addSettingCard(self.prompt_card)
 
         # Prompt language
-        self.prompt_lang_card = _SettingCard("提示语言", "参考音频的语言", self.tts_group)
+        self.prompt_lang_card = _SettingCard(t("settings.prompt_lang"), t("settings.prompt_lang_desc"), self.tts_group)
         self.prompt_lang_combo = ComboBox()
         self.prompt_lang_combo.addItems(["zh", "en", "ja", "ko", "yue", "auto"])
         self.prompt_lang_combo.setCurrentText(self.config.tts.prompt_lang)
@@ -134,7 +135,7 @@ class SettingsPage(ScrollArea):
 
         # Speaker device (physical speaker for self-monitoring, with refresh)
         self.speaker_device_card = AudioDeviceCard(
-            "物理扬声器", "用于自己监听合成语音的输出设备，选择"无"则不监听",
+            t("settings.speaker_device"), t("settings.speaker_desc"),
             is_input=False,
             allow_none=True,
             current_device=self.config.tts.speaker_device_name,
@@ -145,7 +146,7 @@ class SettingsPage(ScrollArea):
 
         # Virtual cable device (for VRChat, with refresh)
         self.virtual_device_card = AudioDeviceCard(
-            "虚拟声卡", "用于VRChat游戏内播放的虚拟声卡设备 (如 CABLE Input)",
+            t("settings.virtual_device"), t("settings.virtual_desc"),
             is_input=False,
             current_device=self.config.tts.virtual_device_name,
             parent=self.tts_group,
@@ -194,7 +195,7 @@ class SettingsPage(ScrollArea):
         signal_bus.config_changed.emit()
 
     def _on_speaker_changed(self, text):
-        self.config.tts.speaker_device_name = "" if text == "无" else text
+        self.config.tts.speaker_device_name = "" if text == t("device.none") else text
         signal_bus.config_changed.emit()
 
     def _on_virtual_changed(self, text):
@@ -203,7 +204,7 @@ class SettingsPage(ScrollArea):
 
     def _browse_ref_audio(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "选择参考音频", "", "Audio Files (*.wav *.mp3 *.flac);;All Files (*)"
+            self, t("settings.select_ref_audio"), "", "Audio Files (*.wav *.mp3 *.flac);;All Files (*)"
         )
         if path:
             self.ref_path_edit.setText(path)

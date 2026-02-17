@@ -7,6 +7,7 @@ from qfluentwidgets import (
 )
 
 from app.common.audio_devices import get_input_devices, get_output_devices
+from app.i18n import t
 
 
 class AudioDeviceCard(CardWidget):
@@ -48,7 +49,7 @@ class AudioDeviceCard(CardWidget):
     def refresh_devices(self):
         self.combo.clear()
         if self.allow_none:
-            self.combo.addItem("无")
+            self.combo.addItem(t("device.none"))
         devices = get_input_devices() if self.is_input else get_output_devices()
         for idx, name in devices:
             self.combo.addItem(name)

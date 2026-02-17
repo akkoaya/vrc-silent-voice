@@ -7,8 +7,10 @@ from qfluentwidgets import (
     ScrollArea, StrongBodyLabel, BodyLabel, HyperlinkLabel, CardWidget,
 )
 
+from app.i18n import t
 
-VERSION = "0.1.0"
+
+VERSION = "0.9.0"
 
 
 class AboutPage(ScrollArea):
@@ -39,21 +41,21 @@ class AboutPage(ScrollArea):
         title.setStyleSheet("font-size: 22px;")
         layout.addWidget(title)
 
-        layout.addWidget(BodyLabel(f"版本: {VERSION}"))
-        layout.addWidget(BodyLabel("基于 GPT-SoVITS 的 VRChat 语音合成工具"))
+        layout.addWidget(BodyLabel(t("about.version", version=VERSION)))
+        layout.addWidget(BodyLabel(t("about.description")))
         layout.addWidget(BodyLabel(""))
 
-        layout.addWidget(StrongBodyLabel("作者"))
+        layout.addWidget(StrongBodyLabel(t("about.author")))
         layout.addWidget(BodyLabel("akkoaya"))
 
         layout.addWidget(BodyLabel(""))
-        layout.addWidget(StrongBodyLabel("项目地址"))
+        layout.addWidget(StrongBodyLabel(t("about.repo")))
         link = HyperlinkLabel("https://github.com/akkoaya/vrc-silent-voice")
         link.setUrl("https://github.com/akkoaya/vrc-silent-voice")
         layout.addWidget(link)
 
         layout.addWidget(BodyLabel(""))
-        layout.addWidget(StrongBodyLabel("技术栈"))
+        layout.addWidget(StrongBodyLabel(t("about.tech_stack")))
         layout.addWidget(BodyLabel("Python 3.12 / PyQt6 / PyQt-Fluent-Widgets / GPT-SoVITS / Sherpa-ONNX"))
 
         self.v_layout.addWidget(card)

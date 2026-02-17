@@ -7,6 +7,8 @@ from qfluentwidgets import LineEdit, PushButton
 
 from pynput import keyboard
 
+from app.i18n import t
+
 
 class HotkeyEdit(QWidget):
     """A widget that captures a single key press and displays it."""
@@ -28,7 +30,7 @@ class HotkeyEdit(QWidget):
         self.display.setMinimumWidth(140)
         layout.addWidget(self.display)
 
-        self.capture_btn = PushButton("捕获按键")
+        self.capture_btn = PushButton(t("hotkey.capture"))
         self.capture_btn.setFixedWidth(90)
         self.capture_btn.clicked.connect(self._toggle_capture)
         layout.addWidget(self.capture_btn)
@@ -41,8 +43,8 @@ class HotkeyEdit(QWidget):
 
     def _start_capture(self):
         self._capturing = True
-        self.capture_btn.setText("取消")
-        self.display.setText("按下任意键...")
+        self.capture_btn.setText(t("hotkey.cancel"))
+        self.display.setText(t("hotkey.press_any"))
         self.display.setStyleSheet("color: orange;")
 
         self._listener = keyboard.Listener(on_press=self._on_key_press)
@@ -51,7 +53,7 @@ class HotkeyEdit(QWidget):
 
     def _stop_capture(self):
         self._capturing = False
-        self.capture_btn.setText("捕获按键")
+        self.capture_btn.setText(t("hotkey.capture"))
         self.display.setStyleSheet("")
         if self._listener:
             self._listener.stop()

@@ -8,6 +8,8 @@ from qfluentwidgets import (
     ProgressRing, InfoBadge, FluentIcon, ToolButton,
 )
 
+from app.i18n import t
+
 
 class ASRControlCard(CardWidget):
     """Card showing ASR recording state and recognized text."""
@@ -24,14 +26,14 @@ class ASRControlCard(CardWidget):
         left.setSpacing(4)
 
         status_row = QHBoxLayout()
-        self.status_badge = InfoBadge.warning("待机")
-        self.status_label = StrongBodyLabel("语音识别")
+        self.status_badge = InfoBadge.warning(t("asr.standby"))
+        self.status_label = StrongBodyLabel(t("asr.title"))
         status_row.addWidget(self.status_badge)
         status_row.addWidget(self.status_label)
         status_row.addStretch()
         left.addLayout(status_row)
 
-        self.text_label = BodyLabel("等待语音输入...")
+        self.text_label = BodyLabel(t("asr.waiting"))
         self.text_label.setStyleSheet("color: gray;")
         self.text_label.setWordWrap(True)
         left.addWidget(self.text_label)
@@ -48,20 +50,20 @@ class ASRControlCard(CardWidget):
     def set_recording(self, recording: bool):
         if recording:
             self.status_badge.deleteLater()
-            self.status_badge = InfoBadge.error("录音中")
+            self.status_badge = InfoBadge.error(t("asr.recording"))
             h = self.layout().itemAt(0).layout().itemAt(0).layout()
             h.insertWidget(0, self.status_badge)
             self.progress_ring.show()
             self.text_label.setStyleSheet("color: inherit;")
         else:
             self.status_badge.deleteLater()
-            self.status_badge = InfoBadge.warning("待机")
+            self.status_badge = InfoBadge.warning(t("asr.standby"))
             h = self.layout().itemAt(0).layout().itemAt(0).layout()
             h.insertWidget(0, self.status_badge)
             self.progress_ring.hide()
 
     def set_text(self, text: str):
-        self.text_label.setText(text if text else "等待语音输入...")
+        self.text_label.setText(text if text else t("asr.waiting"))
         if not text:
             self.text_label.setStyleSheet("color: gray;")
         else:
