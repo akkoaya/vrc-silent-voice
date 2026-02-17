@@ -77,9 +77,12 @@ class GenerationPage(ScrollArea):
 
         grid.addWidget(BodyLabel(t("gen.split_method")), row, 2)
         self.split_combo = ComboBox()
-        self.split_combo.addItems(["cut0", "cut1", "cut2", "cut3", "cut4", "cut5"])
-        self.split_combo.setCurrentText(self.config.tts.text_split_method)
-        self.split_combo.setMinimumWidth(120)
+        self._split_methods = ["cut0", "cut1", "cut2", "cut3", "cut4", "cut5"]
+        for method in self._split_methods:
+            self.split_combo.addItem(t(f"split.{method}"), userData=method)
+        current_idx = self._split_methods.index(self.config.tts.text_split_method)
+        self.split_combo.setCurrentIndex(current_idx)
+        self.split_combo.setMinimumWidth(160)
         grid.addWidget(self.split_combo, row, 3)
         row += 1
 
@@ -187,7 +190,7 @@ class GenerationPage(ScrollArea):
             "top_p": self.top_p_spin.value(),
             "temperature": self.temp_spin.value(),
             "speed_factor": self.speed_spin.value(),
-            "text_split_method": self.split_combo.currentText(),
+            "text_split_method": self._split_methods[self.split_combo.currentIndex()],
             "batch_size": self.batch_spin.value(),
             "seed": self.seed_spin.value(),
             "repetition_penalty": self.rep_penalty_spin.value(),
@@ -199,7 +202,7 @@ class GenerationPage(ScrollArea):
         """Write current UI parameter values back to config object."""
         tts = self.config.tts
         tts.text_lang = self.text_lang_combo.currentText()
-        tts.text_split_method = self.split_combo.currentText()
+        tts.text_split_method = self._split_methods[self.split_combo.currentIndex()]
         tts.top_k = self.top_k_spin.value()
         tts.top_p = self.top_p_spin.value()
         tts.temperature = self.temp_spin.value()
