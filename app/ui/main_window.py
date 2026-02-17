@@ -1,8 +1,8 @@
 """Main application window with fluent navigation."""
 
 from qfluentwidgets import (
-    FluentWindow, FluentIcon, NavigationItemPosition,
-    InfoBar, InfoBarPosition, RoundMenu, Action, NavigationToolButton,
+    MSFluentWindow, FluentIcon, NavigationItemPosition,
+    InfoBar, InfoBarPosition, RoundMenu, Action,
 )
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QSize, QTimer
@@ -17,7 +17,7 @@ from app.ui.settings_page import SettingsPage
 from app.ui.about_page import AboutPage
 
 
-class MainWindow(FluentWindow):
+class MainWindow(MSFluentWindow):
     def __init__(self, config: AppConfig = None):
         super().__init__()
         self.config = config or AppConfig.load()
@@ -50,12 +50,12 @@ class MainWindow(FluentWindow):
         )
 
         # Language switch button (above About)
-        self.lang_btn = NavigationToolButton(FluentIcon.LANGUAGE)
-        self.lang_btn.clicked.connect(self._show_language_menu)
-        self.navigationInterface.addWidget(
-            "languageButton",
-            self.lang_btn,
+        self.navigationInterface.addItem(
+            routeKey="languageButton",
+            icon=FluentIcon.LANGUAGE,
+            text=t("nav.language"),
             onClick=self._show_language_menu,
+            selectable=False,
             position=NavigationItemPosition.BOTTOM,
         )
 
@@ -73,7 +73,8 @@ class MainWindow(FluentWindow):
             action = Action(name, triggered=lambda checked, c=code: self._change_language(c))
             action.setEnabled(code != current)
             menu.addAction(action)
-        menu.exec(self.lang_btn.mapToGlobal(self.lang_btn.rect().center()))
+        btn = self.navigationInterface.widget("languageButton")
+        menu.exec(btn.mapToGlobal(btn.rect().center()))
 
     def _change_language(self, lang: str):
         self.config.language = lang
@@ -89,7 +90,10 @@ class MainWindow(FluentWindow):
     def _init_window(self):
         self.resize(960, 700)
         self.setMinimumSize(QSize(760, 500))
-        self.setWindowTitle("VRC Silent Voice")
+        self.setWindowTitle("VRCSilentVoice")
+        self.setWindowIcon(QIcon("VRCSV.ico"))
+
+        self.titleBar.titleLabel.setStyleSheet("font-size: 16px")
 
         # Center on screen
         desktop = QApplication.primaryScreen()
