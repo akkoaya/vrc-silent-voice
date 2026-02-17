@@ -53,6 +53,7 @@ class GenerationPage(ScrollArea):
         self.text_edit.setPlaceholderText(t("gen.placeholder"))
         self.text_edit.setMinimumHeight(100)
         self.text_edit.setMaximumHeight(200)
+        self.text_edit.setStyleSheet("TextEdit { background: white; color: black; }")
         self.v_layout.addWidget(self.text_edit)
 
     def _init_params_section(self):
