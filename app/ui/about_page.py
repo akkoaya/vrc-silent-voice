@@ -10,7 +10,7 @@ from qfluentwidgets import (
 from app.i18n import t
 
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 
 class AboutPage(ScrollArea):
@@ -46,7 +46,7 @@ class AboutPage(ScrollArea):
         layout.addWidget(BodyLabel(""))
 
         layout.addWidget(StrongBodyLabel(t("about.author")))
-        layout.addWidget(BodyLabel("akkoaya"))
+        layout.addWidget(BodyLabel("淡奶猫眠包"))
 
         layout.addWidget(BodyLabel(""))
         layout.addWidget(StrongBodyLabel(t("about.repo")))
