@@ -16,3 +16,5 @@ models/*/
 *.mp3
 CLAUDE.md
 *.spec
+*.nsi
+*.exe
