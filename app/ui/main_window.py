@@ -2,13 +2,15 @@
 
 from qfluentwidgets import (
     FluentWindow, FluentIcon, NavigationItemPosition,
-    InfoBar, InfoBarPosition,
+    InfoBar, InfoBarPosition, RoundMenu, Action, NavigationToolButton,
 )
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import QSize, QTimer
+from PyQt6.QtGui import QIcon
 
 from app.config import AppConfig
 from app.core.pipeline import Pipeline
+from app.i18n import t, set_language, get_language, LANGUAGES
 from app.signals import signal_bus
 from app.ui.generation_page import GenerationPage
 from app.ui.settings_page import SettingsPage
@@ -39,18 +41,49 @@ class MainWindow(FluentWindow):
         self.addSubInterface(
             self.generation_page,
             FluentIcon.HOME,
-            "主页",
+            t("nav.home"),
         )
         self.addSubInterface(
             self.settings_page,
             FluentIcon.SETTING,
-            "设置",
+            t("nav.settings"),
         )
+
+        # Language switch button (above About)
+        self.lang_btn = NavigationToolButton(FluentIcon.LANGUAGE)
+        self.lang_btn.clicked.connect(self._show_language_menu)
+        self.navigationInterface.addWidget(
+            "languageButton",
+            self.lang_btn,
+            onClick=self._show_language_menu,
+            position=NavigationItemPosition.BOTTOM,
+        )
+
         self.addSubInterface(
             self.about_page,
             FluentIcon.INFO,
-            "关于",
+            t("nav.about"),
             position=NavigationItemPosition.BOTTOM,
+        )
+
+    def _show_language_menu(self):
+        menu = RoundMenu(parent=self)
+        current = get_language()
+        for code, name in LANGUAGES.items():
+            action = Action(name, triggered=lambda checked, c=code: self._change_language(c))
+            action.setEnabled(code != current)
+            menu.addAction(action)
+        menu.exec(self.lang_btn.mapToGlobal(self.lang_btn.rect().center()))
+
+    def _change_language(self, lang: str):
+        self.config.language = lang
+        self.config.save()
+        InfoBar.warning(
+            title=t("lang.changed_title"),
+            content=t("lang.changed"),
+            parent=self,
+            position=InfoBarPosition.TOP,
+            duration=8000,
         )
 
     def _init_window(self):
@@ -78,7 +111,7 @@ class MainWindow(FluentWindow):
         signal_bus.asr_final_result.connect(self._on_asr_final)
         signal_bus.asr_state_changed.connect(self.generation_page.asr_card.set_recording)
         signal_bus.playback_finished.connect(
-            lambda: self._show_info("播放完成")
+            lambda: self._show_info(t("msg.playback_finished"))
         )
 
         # Error handling
@@ -92,23 +125,23 @@ class MainWindow(FluentWindow):
         # Check TTS connection
         if not self.pipeline.check_tts_connection():
             self._show_warning(
-                "GPT-SoVITS API 未连接",
-                f"无法连接到 {self.config.tts.api_url}，请确保 API 服务已启动",
+                t("msg.tts_not_connected"),
+                t("msg.tts_not_connected_desc", url=self.config.tts.api_url),
             )
 
         # Check ref audio
         if not self.config.tts.ref_audio_path:
             self._show_warning(
-                "未设置参考音频",
-                "请在设置页面配置参考音频路径",
+                t("msg.no_ref_audio"),
+                t("msg.no_ref_audio_desc"),
             )
 
         # Initialize ASR if enabled
         if self.config.asr.enabled:
             if not self.pipeline.asr_engine.is_model_available():
                 self._show_warning(
-                    "ASR 模型未找到",
-                    "请下载 sherpa-onnx 模型到 models/ 目录，详见 models/README.md",
+                    t("msg.asr_model_missing"),
+                    t("msg.asr_model_missing_desc"),
                 )
             else:
                 self.pipeline.initialize_asr()
@@ -119,17 +152,17 @@ class MainWindow(FluentWindow):
         has_cable = any("CABLE" in name.upper() or "VIRTUAL" in name.upper() for _, name in devices)
         if not has_cable:
             self._show_warning(
-                "未检测到虚拟声卡",
-                "未找到 VB-Audio Virtual Cable，VRChat 内播放功能将不可用",
+                t("msg.no_virtual_cable"),
+                t("msg.no_virtual_cable_desc"),
             )
 
     def _on_generate(self):
         text = self.generation_page.text_edit.toPlainText().strip()
         if not text:
-            self._show_error("请输入要合成的文本")
+            self._show_error(t("msg.empty_text"))
             return
         if not self.config.tts.ref_audio_path:
-            self._show_error("请先在设置中配置参考音频路径")
+            self._show_error(t("msg.no_ref_audio_error"))
             return
         params = self.generation_page.get_tts_params()
         self.pipeline.synthesize(text, **params)
@@ -147,7 +180,7 @@ class MainWindow(FluentWindow):
 
     def _show_error(self, message: str):
         InfoBar.error(
-            title="错误",
+            title=t("msg.error"),
             content=message,
             parent=self,
             position=InfoBarPosition.TOP,
