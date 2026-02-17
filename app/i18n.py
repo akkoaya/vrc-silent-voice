@@ -10,6 +10,7 @@ _translations: dict[str, dict[str, str]] = {
     # --- Navigation ---
     "nav.home": {"en": "Home", "ja": "ホーム", "zh": "主页"},
     "nav.settings": {"en": "Settings", "ja": "設定", "zh": "设置"},
+    "nav.language": {"en": "Language", "ja": "言語", "zh": "语言"},
     "nav.about": {"en": "About", "ja": "について", "zh": "关于"},
 
     # --- Generation page ---
@@ -52,10 +53,13 @@ _translations: dict[str, dict[str, str]] = {
     },
     "settings.voice_mode": {"en": "Voice Mode", "ja": "音声モード", "zh": "语音模式"},
     "settings.voice_mode_desc": {
-        "en": "push_to_talk=Hold to talk, toggle=Toggle on/off, open_mic=Always on",
-        "ja": "push_to_talk=押して話す, toggle=切り替え, open_mic=常時オン",
-        "zh": "push_to_talk=按住说话, toggle=按键切换, open_mic=持续开启",
+        "en": "How speech recognition is triggered",
+        "ja": "音声認識のトリガー方式",
+        "zh": "语音识别的触发方式",
     },
+    "voice_mode.push_to_talk": {"en": "Push to Talk", "ja": "押して話す", "zh": "按住说话"},
+    "voice_mode.toggle": {"en": "Toggle", "ja": "トグル", "zh": "按键切换"},
+    "voice_mode.open_mic": {"en": "Open Mic", "ja": "常時オン", "zh": "持续开启"},
     "settings.hotkey": {"en": "Hotkey", "ja": "ホットキー", "zh": "热键"},
     "settings.hotkey_desc": {
         "en": "Key to trigger speech recognition (click capture then press desired key)",

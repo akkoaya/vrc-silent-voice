@@ -66,10 +66,13 @@ class SettingsPage(ScrollArea):
             t("settings.voice_mode_desc"),
             self.asr_group,
         )
+        self._voice_modes = ["push_to_talk", "toggle", "open_mic"]
         self.voice_mode_combo = ComboBox()
-        self.voice_mode_combo.addItems(["push_to_talk", "toggle", "open_mic"])
-        self.voice_mode_combo.setCurrentText(self.config.asr.voice_mode)
-        self.voice_mode_combo.currentTextChanged.connect(self._on_voice_mode_changed)
+        for mode in self._voice_modes:
+            self.voice_mode_combo.addItem(t(f"voice_mode.{mode}"), userData=mode)
+        current_idx = self._voice_modes.index(self.config.asr.voice_mode)
+        self.voice_mode_combo.setCurrentIndex(current_idx)
+        self.voice_mode_combo.currentIndexChanged.connect(self._on_voice_mode_changed)
         self.voice_mode_card.add_widget(self.voice_mode_combo)
         self.asr_group.addSettingCard(self.voice_mode_card)
 
@@ -166,8 +169,8 @@ class SettingsPage(ScrollArea):
         self.config.asr.microphone_name = text
         signal_bus.config_changed.emit()
 
-    def _on_voice_mode_changed(self, text):
-        self.config.asr.voice_mode = text
+    def _on_voice_mode_changed(self, index):
+        self.config.asr.voice_mode = self._voice_modes[index]
         signal_bus.config_changed.emit()
 
     def _on_hotkey_changed(self, key_str):
