@@ -60,7 +60,10 @@ class ASRWorker(QThread):
         if self._recording:
             self._recording = False
             self.state_changed.emit(False)
-            # Get any remaining text
+            # Feed ~0.8s of silence to flush the decoder's internal buffer,
+            # ensuring the last token is fully recognized.
+            silence = np.zeros(int(self.engine.sample_rate * 0.8), dtype=np.float32)
+            self.engine.accept_waveform(silence)
             result = self.engine.get_partial_result()
             if result:
                 self.text_final.emit(result)
