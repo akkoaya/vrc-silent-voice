@@ -16,6 +16,10 @@
   <a href="#技术栈">技术栈</a>
 </p>
 
+<p align="center">
+  中文 | <a href="README_EN.md">English</a>
+</p>
+
 ---
 
 ## 这是什么？
@@ -132,7 +136,7 @@ vrc-silent-voice/
 
 ## 许可证
 
-本项目采用 [MIT License](LICENSE) 开源。
+本项目采用 [GPL-3.0 License](LICENSE) 开源。
 
 ## 致谢
 
@@ -140,3 +144,7 @@ vrc-silent-voice/
 - [Sherpa-ONNX](https://github.com/k2-fsa/sherpa-onnx) — 高性能离线语音识别
 - [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets) — 现代化 Fluent Design UI 组件
 - [VB-Audio Virtual Cable](https://vb-audio.com/Cable/) — 虚拟声卡驱动
+
+## 备注
+
+如果该项目对您有帮助，请在右上角添加Star，非常感谢
