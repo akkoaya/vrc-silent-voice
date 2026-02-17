@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  中文 | <a href="README_EN.md">English</a>
+  中文 | <a href="doc/README_EN.md">English</a>
 </p>
 
 ---
@@ -44,6 +44,12 @@
 - **完整参数控制** — 语速、温度、采样等 GPT-SoVITS 全部参数均可调节
 - **多语言界面** — 支持中文 / English / 日本語
 - **配置持久化** — 所有设置自动保存，下次启动即恢复
+
+## 界面预览
+
+| 主页 | 设置 |
+|:---:|:---:|
+| ![主页](doc/img/main_page.png) | ![设置](doc/img/setting_page.png) |
 
 ## 快速开始
 

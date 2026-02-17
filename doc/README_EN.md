@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="VRCSV.png" alt="VRC Silent Voice" width="400">
+  <img src="../VRCSV.png" alt="VRC Silent Voice" width="400">
 </p>
 
 <h1 align="center">VRC Silent Voice</h1>
@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">中文</a> | English
+  <a href="../README.md">中文</a> | English
 </p>
 
 ---
@@ -45,6 +45,12 @@ In VRChat, there are players who choose not to use their real voice to communica
 - **Multi-Language UI** — Supports 中文 / English / 日本語
 - **Persistent Configuration** — All settings are automatically saved and restored on next launch
 
+## Screenshots
+
+| Home | Settings |
+|:---:|:---:|
+| ![Home](img/main_page.png) | ![Settings](img/setting_page.png) |
+
 ## Getting Started
 
 ### Prerequisites
@@ -54,7 +60,7 @@ In VRChat, there are players who choose not to use their real voice to communica
 | [Python 3.10+](https://www.python.org/) | Runtime environment |
 | [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) | Voice synthesis backend |
 | [VB-Audio Virtual Cable](https://vb-audio.com/Cable/) | Virtual audio cable for routing audio into VRChat |
-| [Sherpa-ONNX Models](models/README.md) | Offline speech recognition models |
+| [Sherpa-ONNX Models](../models/README.md) | Offline speech recognition models |
 
 ### Installation
 
