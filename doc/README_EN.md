@@ -39,9 +39,11 @@ In VRChat, there are players who choose not to use their real voice to communica
 
 - **Offline Speech Recognition (ASR)** — Powered by Sherpa-ONNX, fully offline, privacy-safe, supports Chinese / English / Japanese / Korean
 - **High-Quality Voice Synthesis (TTS)** — Powered by GPT-SoVITS V2 API, clone any voice with just a few seconds of reference audio
+- **VRChat OSC Chatbox** — Recognized text is automatically sent to VRChat's in-game chatbox, with a typing indicator while speaking
 - **Dual-Device Playback** — Output to both your speakers (self-monitoring) and virtual audio cable (in-game playback) simultaneously
 - **Flexible Voice Modes** — Push-to-talk / Toggle / Open mic, adapting to different usage habits
 - **Full Parameter Control** — Speed, temperature, sampling, and all GPT-SoVITS parameters are adjustable
+- **Independent ASR / TTS / OSC Switches** — Three modules can be freely combined and enabled as needed
 - **Multi-Language UI** — Supports 中文 / English / 日本語
 - **Persistent Configuration** — All settings are automatically saved and restored on next launch
 
@@ -88,6 +90,7 @@ python main.py
    - **TTS**: API URL, reference audio path, prompt text
    - **TTS**: Select physical speaker (monitoring) and virtual audio cable (in-game playback)
    - **ASR**: Select microphone, voice mode, and hotkey
+   - **OSC**: Enable VRChat chatbox, configure OSC address and port
 
 2. Use on the **Home** page:
    - **Typing mode**: Enter text → Click "Generate Voice" → Dual-device playback
@@ -118,6 +121,7 @@ vrc-silent-voice/
 │   │   ├── hotkey_manager.py   # Global hotkey manager
 │   │   ├── tts_client.py       # GPT-SoVITS HTTP client
 │   │   ├── audio_player.py     # Dual-device audio player
+│   │   ├── osc_client.py       # VRChat OSC chatbox client
 │   │   └── pipeline.py         # Orchestrator
 │   └── ui/
 │       ├── main_window.py      # Main window
@@ -139,6 +143,7 @@ vrc-silent-voice/
 | Audio Processing | sounddevice + soundfile |
 | Global Hotkeys | pynput |
 | HTTP Client | httpx |
+| VRChat OSC | python-osc |
 
 ## License
 

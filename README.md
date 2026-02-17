@@ -39,9 +39,11 @@
 
 - **离线语音识别 (ASR)** — 基于 Sherpa-ONNX，完全离线，隐私安全，支持中/英/日/韩多语言
 - **高质量语音合成 (TTS)** — 接入 GPT-SoVITS V2 API，只需几秒参考音频即可克隆任意音色
+- **VRChat OSC 聊天框** — 语音识别的文字自动发送到 VRChat 游戏内聊天框，说话时显示输入指示器
 - **双设备播放** — 合成语音同时输出到扬声器（自我监听）和虚拟声卡（游戏内播放）
 - **灵活的语音模式** — 按住说话 / 按键切换 / 持续开启，适配不同使用习惯
 - **完整参数控制** — 语速、温度、采样等 GPT-SoVITS 全部参数均可调节
+- **ASR / TTS / OSC 独立开关** — 三大模块可自由组合，按需启用
 - **多语言界面** — 支持中文 / English / 日本語
 - **配置持久化** — 所有设置自动保存，下次启动即恢复
 
@@ -88,6 +90,7 @@ python main.py
    - **TTS**：API 地址、参考音频路径、提示文本
    - **TTS**：选择物理扬声器（监听）和虚拟声卡（游戏内播放）
    - **ASR**：选择麦克风、语音模式和热键
+   - **OSC**：开启 VRChat 聊天框推送，配置 OSC 地址和端口
 
 2. 在 **主页** 使用：
    - **打字模式**：输入文本 → 点击「生成语音」→ 双设备播放
@@ -118,6 +121,7 @@ vrc-silent-voice/
 │   │   ├── hotkey_manager.py   # 全局热键管理
 │   │   ├── tts_client.py       # GPT-SoVITS HTTP 客户端
 │   │   ├── audio_player.py     # 双设备音频播放
+│   │   ├── osc_client.py       # VRChat OSC 聊天框客户端
 │   │   └── pipeline.py         # 编排器
 │   └── ui/
 │       ├── main_window.py      # 主窗口
@@ -139,6 +143,7 @@ vrc-silent-voice/
 | 音频处理 | sounddevice + soundfile |
 | 全局热键 | pynput |
 | HTTP 客户端 | httpx |
+| VRChat OSC | python-osc |
 
 ## 许可证
 
