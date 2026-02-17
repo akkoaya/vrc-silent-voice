@@ -46,6 +46,7 @@ class TTSConfig:
 
 @dataclass
 class AppConfig:
+    language: str = "en"
     asr: ASRConfig = field(default_factory=ASRConfig)
     tts: TTSConfig = field(default_factory=TTSConfig)
 
@@ -63,6 +64,7 @@ class AppConfig:
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
             return cls(
+                language=data.get("language", "en"),
                 asr=ASRConfig(**data.get("asr", {})),
                 tts=TTSConfig(**data.get("tts", {})),
             )
