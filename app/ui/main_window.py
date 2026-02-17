@@ -181,6 +181,7 @@ class MainWindow(MSFluentWindow):
     def _on_config_changed(self):
         self.pipeline.update_audio_devices()
         self.pipeline.update_asr_settings()
+        self.pipeline.update_osc_settings()
 
     def _show_error(self, message: str):
         InfoBar.error(

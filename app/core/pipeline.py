@@ -11,6 +11,7 @@ from app.core.asr_engine import ASREngine
 from app.core.asr_worker import ASRWorker
 from app.core.audio_player import AudioPlayer
 from app.core.hotkey_manager import HotkeyManager
+from app.core.osc_client import OSCClient
 from app.core.tts_client import TTSClient
 from app.signals import signal_bus
 
@@ -61,6 +62,9 @@ class Pipeline(QObject):
         self._tts_worker: Optional[TTSWorker] = None
         self._busy = False
 
+        # OSC client
+        self.osc_client = OSCClient(config.osc.ip, config.osc.port)
+
         # Connect internal signal for thread-safe completion callback
         self._playback_done_signal.connect(self._handle_playback_done)
 
@@ -104,11 +108,21 @@ class Pipeline(QObject):
 
     def _on_asr_partial(self, text: str):
         signal_bus.asr_text_recognized.emit(text)
+        # Show typing indicator in VRChat while speaking
+        if self.config.osc.enabled:
+            self.osc_client.set_typing(True)
 
     def _on_asr_final(self, text: str):
         signal_bus.asr_final_result.emit(text)
+        # Send to VRChat chatbox via OSC
+        if self.config.osc.enabled:
+            self.osc_client.set_typing(False)
+            self.osc_client.send_chatbox(
+                text, sound=self.config.osc.notification_sound,
+            )
         # Auto-synthesize final ASR result
-        self.synthesize(text)
+        if self.config.tts.enabled:
+            self.synthesize(text)
 
     def synthesize(self, text: str, **params):
         """Send text to TTS and play result."""
@@ -165,6 +179,10 @@ class Pipeline(QObject):
             self.hotkey_manager.update_mode(self.config.asr.voice_mode)
         if self.asr_worker:
             self.asr_worker.microphone_name = self.config.asr.microphone_name
+
+    def update_osc_settings(self):
+        """Update OSC client address from config."""
+        self.osc_client.update_address(self.config.osc.ip, self.config.osc.port)
 
     def check_tts_connection(self) -> bool:
         return self.tts_client.check_connection()

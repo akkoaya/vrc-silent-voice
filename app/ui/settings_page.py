@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 
 from qfluentwidgets import (
     ScrollArea, ExpandLayout, SettingCardGroup,
-    FluentIcon, LineEdit, ComboBox, PushButton, SwitchButton,
+    FluentIcon, LineEdit, ComboBox, PushButton, SwitchButton, SpinBox,
     BodyLabel, CardWidget, StrongBodyLabel,
 )
 
@@ -30,6 +30,7 @@ class SettingsPage(ScrollArea):
 
         self._init_asr_group()
         self._init_tts_group()
+        self._init_osc_group()
 
         self.expand_layout.setSpacing(20)
         self.expand_layout.setContentsMargins(36, 20, 36, 20)
@@ -97,6 +98,14 @@ class SettingsPage(ScrollArea):
     def _init_tts_group(self):
         self.tts_group = SettingCardGroup(t("settings.tts_group"), self.scroll_widget)
 
+        # TTS enable switch
+        self.tts_card = _SettingCard(t("settings.tts_switch"), t("settings.tts_switch_desc"), self.tts_group)
+        self.tts_enabled_switch = SwitchButton()
+        self.tts_enabled_switch.setChecked(self.config.tts.enabled)
+        self.tts_enabled_switch.checkedChanged.connect(self._on_tts_enabled_changed)
+        self.tts_card.add_widget(self.tts_enabled_switch)
+        self.tts_group.addSettingCard(self.tts_card)
+
         # API URL
         self.api_card = _SettingCard(t("settings.api_url"), t("settings.api_url_desc"), self.tts_group)
         self.api_url_edit = LineEdit()
@@ -159,6 +168,45 @@ class SettingsPage(ScrollArea):
 
         self.expand_layout.addWidget(self.tts_group)
 
+    def _init_osc_group(self):
+        self.osc_group = SettingCardGroup(t("settings.osc_group"), self.scroll_widget)
+
+        # OSC enable switch
+        self.osc_card = _SettingCard(t("settings.osc_switch"), t("settings.osc_switch_desc"), self.osc_group)
+        self.osc_enabled_switch = SwitchButton()
+        self.osc_enabled_switch.setChecked(self.config.osc.enabled)
+        self.osc_enabled_switch.checkedChanged.connect(self._on_osc_enabled_changed)
+        self.osc_card.add_widget(self.osc_enabled_switch)
+        self.osc_group.addSettingCard(self.osc_card)
+
+        # OSC IP
+        self.osc_ip_card = _SettingCard(t("settings.osc_ip"), t("settings.osc_ip_desc"), self.osc_group)
+        self.osc_ip_edit = LineEdit()
+        self.osc_ip_edit.setMinimumWidth(160)
+        self.osc_ip_edit.setText(self.config.osc.ip)
+        self.osc_ip_edit.textChanged.connect(self._on_osc_ip_changed)
+        self.osc_ip_card.add_widget(self.osc_ip_edit)
+        self.osc_group.addSettingCard(self.osc_ip_card)
+
+        # OSC Port
+        self.osc_port_card = _SettingCard(t("settings.osc_port"), t("settings.osc_port_desc"), self.osc_group)
+        self.osc_port_spin = SpinBox()
+        self.osc_port_spin.setRange(1, 65535)
+        self.osc_port_spin.setValue(self.config.osc.port)
+        self.osc_port_spin.valueChanged.connect(self._on_osc_port_changed)
+        self.osc_port_card.add_widget(self.osc_port_spin)
+        self.osc_group.addSettingCard(self.osc_port_card)
+
+        # Notification sound
+        self.osc_sound_card = _SettingCard(t("settings.osc_sound"), t("settings.osc_sound_desc"), self.osc_group)
+        self.osc_sound_switch = SwitchButton()
+        self.osc_sound_switch.setChecked(self.config.osc.notification_sound)
+        self.osc_sound_switch.checkedChanged.connect(self._on_osc_sound_changed)
+        self.osc_sound_card.add_widget(self.osc_sound_switch)
+        self.osc_group.addSettingCard(self.osc_sound_card)
+
+        self.expand_layout.addWidget(self.osc_group)
+
     # --- Event handlers ---
 
     def _on_asr_enabled_changed(self, checked):
@@ -185,6 +233,10 @@ class SettingsPage(ScrollArea):
         self.config.tts.api_url = text
         signal_bus.config_changed.emit()
 
+    def _on_tts_enabled_changed(self, checked):
+        self.config.tts.enabled = checked
+        signal_bus.config_changed.emit()
+
     def _on_ref_path_changed(self, text):
         self.config.tts.ref_audio_path = text
         signal_bus.config_changed.emit()
@@ -203,6 +255,22 @@ class SettingsPage(ScrollArea):
 
     def _on_virtual_changed(self, text):
         self.config.tts.virtual_device_name = text
+        signal_bus.config_changed.emit()
+
+    def _on_osc_enabled_changed(self, checked):
+        self.config.osc.enabled = checked
+        signal_bus.config_changed.emit()
+
+    def _on_osc_ip_changed(self, text):
+        self.config.osc.ip = text
+        signal_bus.config_changed.emit()
+
+    def _on_osc_port_changed(self, value):
+        self.config.osc.port = value
+        signal_bus.config_changed.emit()
+
+    def _on_osc_sound_changed(self, checked):
+        self.config.osc.notification_sound = checked
         signal_bus.config_changed.emit()
 
     def _browse_ref_audio(self):

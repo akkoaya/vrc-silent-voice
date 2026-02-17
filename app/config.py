@@ -23,6 +23,7 @@ class ASRConfig:
 
 @dataclass
 class TTSConfig:
+    enabled: bool = True
     api_url: str = "http://127.0.0.1:9880"
     ref_audio_path: str = ""
     prompt_text: str = ""
@@ -45,10 +46,19 @@ class TTSConfig:
 
 
 @dataclass
+class OSCConfig:
+    enabled: bool = False
+    ip: str = "127.0.0.1"
+    port: int = 9000
+    notification_sound: bool = True
+
+
+@dataclass
 class AppConfig:
     language: str = "en"
     asr: ASRConfig = field(default_factory=ASRConfig)
     tts: TTSConfig = field(default_factory=TTSConfig)
+    osc: OSCConfig = field(default_factory=OSCConfig)
 
     def save(self, path: Optional[Path] = None) -> None:
         path = path or CONFIG_PATH
@@ -67,6 +77,7 @@ class AppConfig:
                 language=data.get("language", "en"),
                 asr=ASRConfig(**data.get("asr", {})),
                 tts=TTSConfig(**data.get("tts", {})),
+                osc=OSCConfig(**data.get("osc", {})),
             )
         except (json.JSONDecodeError, TypeError):
             return cls()

@@ -70,6 +70,12 @@ _translations: dict[str, dict[str, str]] = {
     "settings.asr_lang_desc": {"en": "Speech recognition model language", "ja": "音声認識モデルの言語", "zh": "语音识别模型语言"},
 
     "settings.tts_group": {"en": "Text-to-Speech (TTS)", "ja": "音声合成 (TTS)", "zh": "语音合成 (TTS)"},
+    "settings.tts_switch": {"en": "Voice Synthesis", "ja": "音声合成", "zh": "语音合成开关"},
+    "settings.tts_switch_desc": {
+        "en": "Enable to auto-synthesize recognized text into voice",
+        "ja": "認識テキストを自動で音声合成する",
+        "zh": "开启后自动将识别文本合成为语音播放",
+    },
     "settings.api_url": {"en": "API URL", "ja": "APIアドレス", "zh": "API 地址"},
     "settings.api_url_desc": {"en": "GPT-SoVITS API service URL", "ja": "GPT-SoVITS APIサービスのアドレス", "zh": "GPT-SoVITS API 服务地址"},
     "settings.ref_audio": {"en": "Reference Audio", "ja": "参照音声", "zh": "参考音频"},
@@ -95,6 +101,33 @@ _translations: dict[str, dict[str, str]] = {
         "en": "Select Reference Audio",
         "ja": "参照音声を選択",
         "zh": "选择参考音频",
+    },
+
+    # --- OSC settings ---
+    "settings.osc_group": {"en": "VRChat OSC", "ja": "VRChat OSC", "zh": "VRChat OSC"},
+    "settings.osc_switch": {"en": "OSC Chatbox", "ja": "OSCチャットボックス", "zh": "OSC 聊天框"},
+    "settings.osc_switch_desc": {
+        "en": "Send recognized text to VRChat chatbox via OSC",
+        "ja": "認識テキストをOSC経由でVRChatチャットボックスに送信",
+        "zh": "将语音识别文本发送到 VRChat 聊天窗口",
+    },
+    "settings.osc_ip": {"en": "OSC Address", "ja": "OSCアドレス", "zh": "OSC 地址"},
+    "settings.osc_ip_desc": {
+        "en": "VRChat OSC listen address",
+        "ja": "VRChat OSCリスニングアドレス",
+        "zh": "VRChat OSC 监听地址",
+    },
+    "settings.osc_port": {"en": "OSC Port", "ja": "OSCポート", "zh": "OSC 端口"},
+    "settings.osc_port_desc": {
+        "en": "VRChat OSC listen port",
+        "ja": "VRChat OSCリスニングポート",
+        "zh": "VRChat OSC 监听端口",
+    },
+    "settings.osc_sound": {"en": "Notification Sound", "ja": "通知音", "zh": "通知音效"},
+    "settings.osc_sound_desc": {
+        "en": "Play VRChat notification sound when sending message",
+        "ja": "メッセージ送信時にVRChat通知音を再生",
+        "zh": "发送消息时是否播放 VRChat 通知音",
     },
 
     # --- About page ---
